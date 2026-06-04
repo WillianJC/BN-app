@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bnapp}
+      POSTGRES_USER: ${POSTGRES_USER:-bnapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bnapp_secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT:-3001}:3001"
+    environment:
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_USER: ${PG_USER:-bnapp}
+      PG_PASSWORD: ${PG_PASSWORD:-bnapp_secret}
+      PG_DB: ${PG_DB:-bnapp}
+    depends_on:
+      - postgres
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "${CLIENT_PORT:-5173}:80"
+    depends_on:
+      - server
+
+volumes:
+  pgdata:

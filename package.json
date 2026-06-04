@@ -1,0 +1,9 @@
+{
+  "name": "bn-app",
+  "private": true,
+  "scripts": {
+    "build:client": "cd client && bun run build",
+    "build:server": "cd server && bun run build",
+    "build:all": "bun run build:client && bun run build:server"
+  }
+}
