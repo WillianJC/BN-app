@@ -1,12 +1,414 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BN App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InclusiApp — Finanzas Inclusivas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo"><i class="fa-solid fa-hand-holding-heart"></i></div>
+      <div>
+        <h1>InclusiApp</h1>
+        <p>Prototipo de Finanzas Inclusivas & Accesibles</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="badge">
+        <span class="badge-dot"></span> Modo Simulacion Activo
+      </span>
+      <button class="btn btn-secondary" id="btn-intro" style="padding:8px 12px;">
+        <i class="fa-solid fa-volume-high"></i> Escuchar Intro
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout: 3 columns -->
+  <div class="main-grid">
+
+    <!-- LEFT: Control Panel -->
+    <section class="sidebar">
+      <!-- Profile Selector -->
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-sliders"></i> 1. Elegir Perfil de Accesibilidad</h3>
+        <p class="card-subtitle">Cambia el perfil para experimentar como se adapta la app en tiempo real.</p>
+
+        <button class="profile-btn active" data-profile="normal" id="btn-perfil-normal">
+          <div class="profile-btn-left">
+            <div class="profile-btn-icon blue"><i class="fa-solid fa-user-check"></i></div>
+            <div>
+              <div class="profile-btn-title">Perfil Estandar / Adulto Mayor</div>
+              <div class="profile-btn-desc">Diseno limpio, botones grandes, fuentes claras.</div>
+            </div>
+          </div>
+          <span class="profile-btn-check"><i class="fa-solid fa-circle-check"></i></span>
+        </button>
+
+        <button class="profile-btn" data-profile="vision" id="btn-perfil-vision">
+          <div class="profile-btn-left">
+            <div class="profile-btn-icon yellow"><i class="fa-solid fa-eye"></i></div>
+            <div>
+              <div class="profile-btn-title">Modo Alta Vision (Contraste Maximo)</div>
+              <div class="profile-btn-desc">Alto contraste (Negro/Amarillo), fuentes gigantes (WCAG 2.2).</div>
+            </div>
+          </div>
+          <span class="profile-btn-check"><i class="fa-solid fa-circle-check"></i></span>
+        </button>
+
+        <button class="profile-btn" data-profile="notext" id="btn-perfil-notext">
+          <div class="profile-btn-left">
+            <div class="profile-btn-icon purple"><i class="fa-solid fa-ear-listen"></i></div>
+            <div>
+              <div class="profile-btn-title">Modo Guiado Auditivo / Sin Texto</div>
+              <div class="profile-btn-desc">Apoyo estricto en audios, colores e iconos familiares.</div>
+            </div>
+          </div>
+          <span class="profile-btn-check"><i class="fa-solid fa-circle-check"></i></span>
+        </button>
+      </div>
+
+      <!-- Requirements Mapping -->
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-clipboard-list" style="color:var(--success)"></i> Mapeo de Requerimientos</h3>
+        <p class="card-subtitle">Haz clic en cada requerimiento para ver su aplicacion practica.</p>
+
+        <div class="req-item" data-req="rf01" data-screen="auth">
+          <span class="req-badge">RF-01</span>
+          <div>
+            <div class="req-item-title">Interaccion y Audio Multimodal</div>
+            <div class="req-item-desc">Guia sonora que narra cada paso para usuarios que no desean leer.</div>
+          </div>
+        </div>
+
+        <div class="req-item" data-req="rf03" data-screen="home">
+          <span class="req-badge">RF-03</span>
+          <div>
+            <div class="req-item-title">Interfaz Visual Ultra-Simplificada</div>
+            <div class="req-item-desc">Transacciones principales en maximo 2 clics, sin tecnicismos.</div>
+          </div>
+        </div>
+
+        <div class="req-item" data-req="rf05" data-screen="qr">
+          <span class="req-badge">RF-05</span>
+          <div>
+            <div class="req-item-title">Cobros y Retiros sin Tarjeta</div>
+            <div class="req-item-desc">Codigo QR o numerico gigante para retirar bonos y pensiones.</div>
+          </div>
+        </div>
+
+        <div class="req-item" data-req="rf07" data-screen="auth">
+          <span class="req-badge">RF-07</span>
+          <div>
+            <div class="req-item-title">Autenticacion Biometrica Asistida</div>
+            <div class="req-item-desc">Reconocimiento facial simplificado sin contrasenas complejas.</div>
+          </div>
+        </div>
+
+        <div class="req-item" data-req="rf08" data-screen="help">
+          <span class="req-badge">RF-08</span>
+          <div>
+            <div class="req-item-title">Boton de Auxilio y Modo Co-Piloto</div>
+            <div class="req-item-desc">Conexion directa con soporte humano y familiar autorizado.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER: Phone Simulator -->
+    <section class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="phone-notch"><div class="phone-notch-inner"></div></div>
+
+        <div class="phone-screen" id="phone-app-container">
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <span id="phone-time">10:30</span>
+            <div class="status-bar-icons">
+              <i class="fa-solid fa-wifi"></i>
+              <i class="fa-solid fa-signal"></i>
+              <i class="fa-solid fa-battery-three-quarters" style="color:var(--success)"></i>
+            </div>
+          </div>
+
+          <!-- ═══════ SCREEN 1: AUTH ═══════ -->
+          <div class="screen" id="screen-auth">
+            <div class="auth-center">
+              <div class="auth-logo"><i class="fa-solid fa-hand-holding-heart"></i></div>
+              <h2 class="auth-title" data-translate="auth-title">Bienvenido a InclusiApp</h2>
+              <p class="auth-desc" data-translate="auth-desc">Acerque su rostro para ingresar de forma segura.</p>
+
+              <div class="face-scanner">
+                <span class="face-icon"><i class="fa-solid fa-face-smile"></i></span>
+                <div class="scanner-line"></div>
+              </div>
+              <span class="scan-status"><i class="fa-solid fa-shield-halved"></i> Reconocimiento Activo</span>
+
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-primary wide btn-block" id="btn-login-face" data-translate="auth-btn">
+                  <i class="fa-solid fa-fingerprint"></i> ENTRAR CON MI ROSTRO
+                </button>
+                <button class="btn btn-secondary btn-block" id="btn-auth-help">
+                  <i class="fa-solid fa-volume-high"></i> ESCUCHAR AYUDA DE VOZ
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════ SCREEN 2: HOME / DASHBOARD ═══════ -->
+          <div class="screen hidden" id="screen-home">
+            <div class="home-header">
+              <div class="home-user">
+                <div class="home-avatar" id="home-avatar-initial">M</div>
+                <div>
+                  <div class="home-greeting">Hola,</div>
+                  <div class="home-name" id="home-user-name">Manuel Torres</div>
+                </div>
+              </div>
+              <button class="home-audio-btn" id="btn-home-audio" title="Escuchar estado">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+
+            <div class="balance-card-small">
+              <div class="balance-card-label" data-translate="home-balance-label">MI DINERO DISPONIBLE</div>
+              <div class="balance-card-amount" id="home-balance-amount">$ 450.00<small>USD</small></div>
+              <span class="balance-card-tag">Pension de Jubilacion al dia</span>
+            </div>
+
+            <div class="menu-grid">
+              <button class="menu-btn" data-nav="saldo">
+                <div class="menu-btn-icon blue"><i class="fa-solid fa-wallet"></i></div>
+                <span class="menu-btn-label" data-translate="menu-saldo">VER MI DINERO</span>
+              </button>
+              <button class="menu-btn" data-nav="qr">
+                <div class="menu-btn-icon green"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <span class="menu-btn-label" data-translate="menu-cobrar">COBRAR BONO</span>
+              </button>
+              <button class="menu-btn" data-nav="pagos">
+                <div class="menu-btn-icon purple"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <span class="menu-btn-label" data-translate="menu-pagar">PAGAR LUZ/AGUA</span>
+              </button>
+              <button class="menu-btn" data-nav="help">
+                <div class="menu-btn-icon rose"><i class="fa-solid fa-question"></i></div>
+                <span class="menu-btn-label" data-translate="menu-ayuda">?COMO SE USA?</span>
+              </button>
+            </div>
+
+            <button class="sos-btn" id="btn-sos" data-translate="home-sos-btn">
+              <i class="fa-solid fa-phone-volume"></i> BOTON DE AUXILIO
+            </button>
+          </div>
+
+          <!-- ═══════ SCREEN 3: BALANCE ═══════ -->
+          <div class="screen hidden" id="screen-saldo">
+            <div class="screen-header">
+              <button class="btn-back" data-nav="home"><i class="fa-solid fa-arrow-left"></i> VOLVER</button>
+              <span class="screen-heading" data-translate="saldo-header">Mi Dinero</span>
+              <button class="home-audio-btn" id="btn-saldo-audio" title="Escuchar saldo">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+
+            <div class="balance-detail">
+              <div class="balance-icon-big"><i class="fa-solid fa-wallet"></i></div>
+              <div class="balance-label-big" data-translate="saldo-label">DINERO QUE TIENE HOY</div>
+              <div class="balance-amount-big" id="saldo-amount">$ 450.00</div>
+              <div class="balance-hint">Pesos / Dolares Equivalentes</div>
+
+              <div class="alert-box">
+                <div class="alert-dot"></div>
+                <span data-translate="saldo-alert">Su pension mensual ya se deposito con exito y esta lista para ser cobrada!</span>
+              </div>
+
+              <button class="btn btn-success btn-block btn-lg" data-nav="qr">
+                <i class="fa-solid fa-money-bill-wave"></i> IR A COBRAR DINERO
+              </button>
+            </div>
+          </div>
+
+          <!-- ═══════ SCREEN 4: QR / WITHDRAW ═══════ -->
+          <div class="screen hidden" id="screen-qr">
+            <div class="screen-header">
+              <button class="btn-back" data-nav="home"><i class="fa-solid fa-arrow-left"></i> VOLVER</button>
+              <span class="screen-heading" data-translate="cobro-header">Retiro de Dinero</span>
+              <button class="home-audio-btn" id="btn-qr-audio" title="Escuchar instrucciones">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+
+            <div class="qr-center">
+              <span class="qr-hint" data-translate="cobro-step-1">MUESTRE ESTE DIBUJO EN LA CAJA:</span>
+
+              <div class="qr-box">
+                <div class="qr-grid">
+                  <div class="qr-inner">
+                    <div class="qr-dot dark"></div><div class="qr-dot dark"></div><div class="qr-dot light"></div><div class="qr-dot dark"></div>
+                    <div class="qr-dot light"></div><div class="qr-dot dark icon"><i class="fa-solid fa-wallet"></i></div><div class="qr-dot dark"></div><div class="qr-dot light"></div>
+                    <div class="qr-dot dark"></div><div class="qr-dot light"></div><div class="qr-dot dark"></div><div class="qr-dot dark"></div>
+                    <div class="qr-dot dark"></div><div class="qr-dot dark"></div><div class="qr-dot light"></div><div class="qr-dot dark"></div>
+                  </div>
+                </div>
+                <div class="qr-code-text">INCLUSI-QR-450</div>
+              </div>
+
+              <p style="font-size:0.6rem;color:var(--text-muted);font-weight:700;" data-translate="cobro-step-2">O DIGA ESTE NUMERO AL CAJERO:</p>
+              <span class="code-numbers" id="qr-code-display">4590-23</span>
+
+              <div class="qr-status">
+                <i class="fa-solid fa-clock" style="animation: pulse 1.5s infinite;"></i>
+                Esperando cobro en ventanilla...
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════ SCREEN 5: PAGOS ═══════ -->
+          <div class="screen hidden" id="screen-pagos">
+            <div class="screen-header">
+              <button class="btn-back" data-nav="home"><i class="fa-solid fa-arrow-left"></i> VOLVER</button>
+              <span class="screen-heading" data-translate="pagos-header">Pagar Cuentas</span>
+              <button class="home-audio-btn" id="btn-pagos-audio" title="Escuchar opciones">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+
+            <p class="payments-subtitle" data-translate="pagos-sub">?Que recibo desea pagar hoy?</p>
+
+            <div class="payment-item" data-pay-service="LUZ" data-pay-amount="34.20">
+              <div class="payment-item-left">
+                <div class="payment-icon yellow"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                  <div class="payment-name" data-translate="pago-luz">RECIBO DE LUZ</div>
+                  <div class="payment-due">Vence en 3 dias</div>
+                </div>
+              </div>
+              <div class="payment-right">
+                <div class="payment-amount">$ 34.20</div>
+                <span class="payment-action">Pagar</span>
+              </div>
+            </div>
+
+            <div class="payment-item" data-pay-service="AGUA" data-pay-amount="15.00">
+              <div class="payment-item-left">
+                <div class="payment-icon blue"><i class="fa-solid fa-droplet"></i></div>
+                <div>
+                  <div class="payment-name" data-translate="pago-agua">RECIBO DE AGUA</div>
+                  <div class="payment-due">Vence en 5 dias</div>
+                </div>
+              </div>
+              <div class="payment-right">
+                <div class="payment-amount">$ 15.00</div>
+                <span class="payment-action">Pagar</span>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary btn-block" id="btn-camera-scan">
+              <i class="fa-solid fa-camera"></i> ESCANEAR PAPEL DE RECIBO
+            </button>
+          </div>
+
+          <!-- ═══════ SCREEN 6: HELP / SOS ═══════ -->
+          <div class="screen hidden" id="screen-help">
+            <div class="screen-header">
+              <button class="btn-back" data-nav="home"><i class="fa-solid fa-arrow-left"></i> VOLVER</button>
+              <span class="screen-heading" data-translate="ayuda-header">Asistencia Directa</span>
+              <button class="home-audio-btn" id="btn-help-audio" title="Escuchar ayuda">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+
+            <div class="help-center">
+              <div class="help-avatar">
+                <i class="fa-solid fa-user-tie"></i>
+              </div>
+              <div class="help-title" data-translate="ayuda-sub">Soporte Inclusivo</div>
+              <div class="help-subtitle">Conexion de Audio y Video</div>
+
+              <div class="help-info">
+                <b>Modo Co-Piloto Seguro:</b> Puede dar acceso temporal controlado a su hijo o asesor para ayudarle.
+              </div>
+
+              <button class="btn btn-success btn-block" id="btn-call-sos" style="font-size:0.85rem;">
+                <i class="fa-solid fa-phone"></i> LLAMAR DE INMEDIATO
+              </button>
+              <button class="btn btn-ghost btn-block" data-nav="home">CANCELAR</button>
+            </div>
+          </div>
+
+          <!-- Home Indicator -->
+          <div class="home-indicator">
+            <div class="home-indicator-bar" title="Inicio" data-nav="home"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Voice Console + WCAG -->
+    <section class="sidebar sidebar-right">
+      <!-- Voice Console -->
+      <div class="console">
+        <div>
+          <div class="console-header">
+            <span class="console-label">LECTOR DE VOZ ACTIVO</span>
+            <div class="console-dot"></div>
+          </div>
+          <p class="console-hint">Mensaje que el pensionista esta escuchando:</p>
+          <div class="console-speech" id="system-speech-box">
+            "Cargando el sistema para el pensionista..."
+          </div>
+        </div>
+        <div class="console-buttons">
+          <button class="console-btn" id="btn-replay-speech">
+            <i class="fa-solid fa-arrow-rotate-right"></i> Repetir Audio
+          </button>
+          <button class="console-btn small" id="btn-mute">
+            <i class="fa-solid fa-volume-high" id="mute-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- WCAG Info -->
+      <div class="card">
+        <h4 class="card-title"><i class="fa-solid fa-universal-access" style="color:var(--primary)"></i> Inclusion WCAG 2.2</h4>
+        <ul class="wcag-list">
+          <li>
+            <span class="check"><i class="fa-solid fa-circle-check"></i></span>
+            <span><b>Contraste de color mejorado:</b> Relacion de contraste mayor a 4.5:1 en todos los componentes.</span>
+          </li>
+          <li>
+            <span class="check"><i class="fa-solid fa-circle-check"></i></span>
+            <span><b>Tamano del objetivo tactil:</b> Botones de accion super ampliados (minimo 64x64px).</span>
+          </li>
+          <li>
+            <span class="check"><i class="fa-solid fa-circle-check"></i></span>
+            <span><b>Sin dependencia del color:</b> Todas las operaciones con iconos gigantes y claros.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="custom-toast">
+    <div class="toast-icon-wrap" id="toast-icon-bg">
+      <i id="toast-icon" class="fa-solid fa-info"></i>
+    </div>
+    <div>
+      <div class="toast-title" id="toast-title">Alerta</div>
+      <div class="toast-msg" id="toast-message">Mensaje del sistema</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    InclusiApp &copy; 2026. Disenado para garantizar la accesibilidad de pensionistas, jubilados y beneficiarios de programas de soporte social.
+  </footer>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
 </html>
