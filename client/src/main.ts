@@ -121,63 +121,7 @@ if (!root) {
 root.innerHTML = `
 	<div class="app-stage">
 		<main class="app-shell" aria-label="InclusiApp">
-			<div class="phone-notch" aria-hidden="true">
-				<span></span>
-			</div>
-
-			<header class="app-brand-bar">
-				<div class="app-brand-lockup">
-					<div class="brand-mark" aria-hidden="true">
-						<i class="fa-solid fa-hand-holding-heart"></i>
-					</div>
-					<div>
-						<h1>InclusiApp</h1>
-						<p>Prototipo de finanzas inclusivas & accesibles</p>
-					</div>
-				</div>
-				<div class="app-chips">
-					<span class="status-chip status-chip--active"><i class="fa-solid fa-circle"></i> Modo Simulación</span>
-					<button type="button" class="icon-chip" data-action="intro" aria-label="Escuchar introducción">
-						<i class="fa-solid fa-volume-high"></i>
-					</button>
-				</div>
-			</header>
-
-			<div class="voice-bar" aria-label="Controles de voz">
-				<button type="button" class="voice-button" id="btn-mute" data-action="toggle-mute" aria-pressed="false">
-					<i id="mute-icon" class="fa-solid fa-volume-high"></i>
-					<span>Voz</span>
-				</button>
-				<button type="button" class="voice-button voice-button--secondary" data-action="replay">
-					<i class="fa-solid fa-arrow-rotate-right"></i>
-					<span>Repetir</span>
-				</button>
-				<p id="voice-summary" class="voice-summary">Cargando el sistema de asistencia de voz...</p>
-				<span class="sr-only" id="voice-live" aria-live="polite"></span>
-			</div>
-
-			<div class="profile-switcher" aria-label="Perfiles de accesibilidad">
-				<button type="button" class="profile-pill is-active" data-profile="normal">
-					Estándar
-				</button>
-				<button type="button" class="profile-pill" data-profile="vision">
-					Alta visión
-				</button>
-				<button type="button" class="profile-pill" data-profile="notext">
-					Sin texto
-				</button>
-			</div>
-
-			<div id="phone-app-container" class="phone-frame">
-				<div class="status-bar">
-					<span id="phone-time">10:30</span>
-					<div>
-						<i class="fa-solid fa-wifi"></i>
-						<i class="fa-solid fa-signal"></i>
-						<i class="fa-solid fa-battery-three-quarters"></i>
-					</div>
-				</div>
-
+			<div class="app-surface">
 				<section id="screen-auth" class="phone-screen app-bg">
 					<div class="screen-hero">
 						<span class="hero-icon app-icon"><i class="fa-solid fa-hand-holding-heart"></i></span>
@@ -385,10 +329,6 @@ root.innerHTML = `
 						</button>
 					</div>
 				</section>
-
-				<button type="button" class="home-pill" data-action="back-home" aria-label="Volver a inicio">
-					<span></span>
-				</button>
 			</div>
 		</main>
 	</div>

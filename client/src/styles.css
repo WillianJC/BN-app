@@ -898,6 +898,90 @@ button:focus-visible {
   border: 0;
 }
 
+body {
+  overflow: auto;
+}
+
+.app-stage {
+  align-items: stretch;
+}
+
+.app-shell {
+  width: min(100%, 760px);
+  min-height: 100dvh;
+  border-radius: 0;
+  padding: 24px 18px 18px;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.app-surface {
+  position: relative;
+  flex: 1;
+  display: block;
+  padding: 18px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(22px) saturate(150%);
+}
+
+.phone-screen {
+  position: relative;
+  inset: auto;
+  min-height: calc(100dvh - 184px);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.phone-screen.is-hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: none;
+}
+
+.phone-screen.is-active {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.phone-screen.app-bg {
+  background: transparent;
+}
+
+.phone-frame,
+.phone-notch,
+.status-bar,
+.home-pill {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 16px 12px 12px;
+  }
+
+  .app-surface {
+    padding: 14px;
+    border-radius: 26px;
+  }
+
+  .phone-screen {
+    min-height: calc(100dvh - 160px);
+  }
+
+}
+
 .high-contrast-mode {
   color: #ffff00;
   background: #000000;
