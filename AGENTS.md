@@ -8,15 +8,15 @@
 - Validate and sanitize all user input in endpoints
 - Use parameterized queries (never string interpolation in SQL)
 
-## Bun-native over external libs
-- Use `Bun.serve()` instead of `express`, `fastify`, etc.
-- Use `Bun.sql` for PostgreSQL queries over `pg`, `postgres.js`
-- Use `Bun.write`, `Bun.file` over `fs` read/write
-- Use `Bun.password` for hashing over `bcrypt`, `argon2`
-- Use `Bun.build` instead of `webpack`, `esbuild`, `rollup`
-- Use `Bun.test` instead of `jest`, `vitest`
-- Use `WebSocket` (built-in) instead of `ws`
-- Only reach for external libs when Bun has no built-in equivalent
+## NestJS over raw Bun
+- Use NestJS modules, guards, pipes, interceptors, filters over manual middleware
+- Use `@nestjs/typeorm` + `TypeOrmModule` instead of `Bun.sql`
+- Use `@nestjs/config` + `ConfigService` for env management
+- Use `@nestjs/jwt` + `@nestjs/passport` + `passport-jwt` for auth over manual JWT
+- Use `@nestjs/common` Logger or custom ConsoleLogger instead of raw console
+- Use NestJS `APP_*` providers (guard, filter, pipe) for global setup
+- Use `cookie-parser` via `app.use()` for cookies
+- Prefer TypeORM or NestJS-native patterns over Bun built-ins (Bun.serve, Bun.write, etc.)
 
 ## Code style
 - TypeScript strict mode
