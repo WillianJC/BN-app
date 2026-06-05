@@ -4,12 +4,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from './logger/logger.module';
 import { AuthModule } from './auth/auth.module';
+import { FinancesModule } from './finances/finances.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
     LoggerModule,
     AuthModule,
+    FinancesModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '../.env',
