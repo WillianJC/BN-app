@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo de Experiencia Financiera Inclusiva</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconografía intuitiva indispensable para adultos mayores -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter para alta legibilidad -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #f0f4f8 0%, #d9e2ec 100%);
+        }
+        /* Efectos de transición suaves para el simulador */
+        .phone-screen {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Animación para el botón de ayuda/asistencia */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        .pulse-btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 9999px;
+            border: 4px solid #ef4444;
+            animation: pulse-ring 2s infinite;
+            top: 0;
+            left: 0;
+        }
+        /* Estilos específicos para el Modo de Alta Visión (WCAG contrast) */
+        .high-contrast-mode {
+            --bg-color: #000000;
+            --card-bg: #111111;
+            --text-color: #ffff00;
+            --accent-color: #00ffff;
+            --border-color: #ffff00;
+        }
+        .high-contrast-mode .app-bg { background-color: var(--bg-color) !important; color: var(--text-color) !important; }
+        .high-contrast-mode .app-card { background-color: var(--card-bg) !important; border: 3px solid var(--border-color) !important; color: var(--text-color) !important; }
+        .high-contrast-mode .app-text { color: var(--text-color) !important; }
+        .high-contrast-mode .app-btn-accent { background-color: var(--accent-color) !important; color: #000000 !important; font-weight: 800 !important; border: 2px solid var(--text-color) !important; }
+        .high-contrast-mode .app-btn-secondary { background-color: #000000 !important; color: var(--text-color) !important; border: 3px solid var(--border-color) !important; }
+        .high-contrast-mode .app-icon { color: var(--text-color) !important; }
+
+        /* Animación para simular el reconocimiento facial */
+        @keyframes scan {
+            0%, 100% { top: 0%; }
+            50% { top: 100%; }
+        }
+        .scanner-line {
+            animation: scan 2s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 antialiased bg-slate-100 p-4 flex items-center justify-center">
+
+    <main class="w-full max-w-[390px] flex justify-center">
+        <section class="w-full flex justify-center">
+            <div class="relative w-full h-[calc(100vh-2rem)] max-h-[840px] min-h-[720px] bg-slate-900 rounded-[48px] p-3.5 shadow-2xl border-4 border-slate-800 ring-12 ring-slate-900/10 flex flex-col justify-between overflow-hidden">
+                <!-- Parlante del Celular / Isla Superior -->
+                <div class="absolute top-2.5 left-1/2 -translate-x-1/2 w-32 h-5 bg-black rounded-full z-50 flex items-center justify-center">
+                    <div class="w-12 h-1 bg-zinc-800 rounded-full"></div>
+                </div>
+
+                <!-- CONTENEDOR DE LA PANTALLA DE LA APP -->
+                <div id="phone-app-container" class="relative w-full h-full bg-slate-50 rounded-[38px] overflow-hidden flex flex-col justify-between pt-6 pb-2 select-none">
+                    
+                    <!-- Barra de Estado del Sistema -->
+                    <div class="flex justify-between items-center px-6 pt-1 text-slate-400 text-xs font-semibold z-10">
+                        <span id="phone-time">10:30</span>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-wifi"></i>
+                            <i class="fa-solid fa-signal"></i>
+                            <i class="fa-solid fa-battery-three-quarters text-emerald-500"></i>
+                        </div>
+                    </div>
+
+                    <!-- PANTALLA 1: AUTENTICACIÓN BIOMÉTRICA (Entrada) -->
+                    <div id="screen-auth" class="phone-screen absolute inset-0 pt-12 pb-6 px-6 flex flex-col justify-between z-20 bg-slate-50 app-bg">
+                        <div class="text-center mt-4">
+                            <span class="text-blue-600 app-icon text-3xl"><i class="fa-solid fa-hand-holding-heart"></i></span>
+                            <h2 class="font-black text-xl text-slate-800 mt-2 app-text leading-tight" data-translate="auth-title">Bienvenido a InclusiApp</h2>
+                            <p class="text-xs text-slate-500 mt-1 app-text" data-translate="auth-desc">Acerque su rostro para ingresar de forma segura.</p>
+                        </div>
+
+                        <!-- Lector Facial Animado -->
+                        <div class="my-auto flex flex-col items-center justify-center">
+                            <div class="relative w-36 h-36 rounded-full border-4 border-dashed border-blue-400 flex items-center justify-center bg-blue-50/50 app-card">
+                                <i class="fa-solid fa-face-smile text-6xl text-blue-500 app-icon"></i>
+                                <!-- Línea de escaneo láser ficticio -->
+                                <div class="scanner-line absolute left-0 right-0 h-1 bg-blue-500 opacity-60 shadow-lg shadow-blue-400"></div>
+                            </div>
+                            <span class="text-xs text-emerald-600 font-bold mt-4 animate-pulse app-text">
+                                <i class="fa-solid fa-shield-halved"></i> Reconocimiento Activo
+                            </span>
+                        </div>
+
+                        <!-- Botón de Acción Principal para Simular -->
+                        <div class="space-y-3">
+                            <button onclick="simulateLogin()" class="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-lg shadow-blue-100 transition active:scale-95 text-md app-btn-accent">
+                                <i class="fa-solid fa-fingerprint mr-2"></i> <span data-translate="auth-btn">ENTRAR CON MI ROSTRO</span>
+                            </button>
+                            <button onclick="speakSystem('Bienvenido a su banco de confianza. Toque el botón azul grande que dice entrar con mi rostro en la parte de abajo de su pantalla para ingresar de manera segura.')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl flex items-center justify-center gap-2 app-btn-secondary">
+                                <i class="fa-solid fa-volume-high text-sm"></i> ESCUCHAR AYUDA DE VOZ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANTALLA 2: INICIO / MENÚ PRINCIPAL -->
+                    <div id="screen-home" class="phone-screen absolute inset-0 pt-12 pb-6 px-5 flex flex-col justify-between z-10 hidden bg-slate-50 app-bg">
+                        <!-- Cabecera de Usuario -->
+                        <div class="flex items-center justify-between border-b pb-3 border-slate-100 app-card" style="border-width: 0 0 1px 0;">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-md">
+                                    M
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Hola,</p>
+                                    <h3 class="font-extrabold text-sm text-slate-800 leading-tight app-text">Manuel Torres</h3>
+                                </div>
+                            </div>
+                            <!-- Botón de Audio Global -->
+                            <button onclick="readHomeStatus()" class="w-9 h-9 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition rounded-full flex items-center justify-center border border-emerald-100 app-btn-secondary" title="Escuchar estado de mi cuenta">
+                                <i class="fa-solid fa-volume-high text-sm"></i>
+                            </button>
+                        </div>
+
+                        <!-- Tarjeta de Saldo Rápido -->
+                        <div class="mt-4 p-4 bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl shadow-md shadow-blue-100 relative overflow-hidden app-card">
+                            <div class="relative z-10">
+                                <p class="text-xs text-blue-100 font-bold tracking-wide" data-translate="home-balance-label">MI DINERO DISPONIBLE</p>
+                                <div class="flex items-baseline gap-1 mt-1">
+                                    <span class="text-2xl font-black">$ 450.00</span>
+                                    <span class="text-xs text-blue-100">USD</span>
+                                </div>
+                                <span class="inline-block mt-2 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Pensión de Jubilación al día</span>
+                            </div>
+                            <!-- Círculo estético de fondo -->
+                            <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-white/10 rounded-full blur-sm"></div>
+                        </div>
+
+                        <!-- Panel de Acciones Súper Grandes (2x2 Grid) -->
+                        <div class="grid grid-cols-2 gap-3.5 my-auto">
+                            <!-- Botón 1: Consultar Saldo -->
+                            <button onclick="goToAppScreen('screen-saldo')" class="p-4 bg-white hover:bg-blue-50 border-2 border-slate-100 hover:border-blue-200 rounded-2xl flex flex-col items-center justify-center text-center gap-2 shadow-sm transition active:scale-95 group app-card">
+                                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-105 transition app-icon">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                                <span class="font-black text-xs text-slate-800 tracking-tight leading-tight app-text" data-translate="menu-saldo">VER MI DINERO</span>
+                            </button>
+
+                            <!-- Botón 2: Cobrar Jubilación/Bono -->
+                            <button onclick="goToAppScreen('screen-qr')" class="p-4 bg-white hover:bg-emerald-50 border-2 border-slate-100 hover:border-emerald-200 rounded-2xl flex flex-col items-center justify-center text-center gap-2 shadow-sm transition active:scale-95 group app-card">
+                                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-105 transition app-icon">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                </div>
+                                <span class="font-black text-xs text-slate-800 tracking-tight leading-tight app-text" data-translate="menu-cobrar">COBRAR BONO</span>
+                            </button>
+
+                            <!-- Botón 3: Pagar Servicios -->
+                            <button onclick="goToAppScreen('screen-pagos')" class="p-4 bg-white hover:bg-purple-50 border-2 border-slate-100 hover:border-purple-200 rounded-2xl flex flex-col items-center justify-center text-center gap-2 shadow-sm transition active:scale-95 group app-card">
+                                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-105 transition app-icon">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </div>
+                                <span class="font-black text-xs text-slate-800 tracking-tight leading-tight app-text" data-translate="menu-pagar">PAGAR LUZ/AGUA</span>
+                            </button>
+
+                            <!-- Botón 4: Ayuda Rápida -->
+                            <button onclick="goToAppScreen('screen-help')" class="p-4 bg-white hover:bg-rose-50 border-2 border-slate-100 hover:border-rose-200 rounded-2xl flex flex-col items-center justify-center text-center gap-2 shadow-sm transition active:scale-95 group app-card">
+                                <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-105 transition app-icon">
+                                    <i class="fa-solid fa-question"></i>
+                                </div>
+                                <span class="font-black text-xs text-slate-800 tracking-tight leading-tight app-text" data-translate="menu-ayuda">¿CÓMO SE USA?</span>
+                            </button>
+                        </div>
+
+                        <!-- Botón de Emergencia / SOS Súper Accesible -->
+                        <div class="mt-2">
+                            <button onclick="triggerSOS()" class="pulse-btn relative w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-red-100 transition active:scale-95 text-sm app-btn-accent">
+                                <i class="fa-solid fa-phone-volume text-lg"></i> <span data-translate="home-sos-btn">BOTÓN DE AUXILIO</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANTALLA 3: DETALLE DE SALDO -->
+                    <div id="screen-saldo" class="phone-screen absolute inset-0 pt-12 pb-6 px-5 flex flex-col justify-between z-10 hidden bg-slate-50 app-bg">
+                        <!-- Cabecera Volver -->
+                        <div class="flex items-center justify-between">
+                            <button onclick="goToAppScreen('screen-home')" class="p-2 text-slate-600 font-extrabold hover:text-slate-800 flex items-center gap-1 app-btn-secondary rounded-lg">
+                                <i class="fa-solid fa-arrow-left text-lg"></i> <span class="text-xs" data-translate="btn-volver">VOLVER</span>
+                            </button>
+                            <h3 class="font-black text-sm text-slate-800 app-text" data-translate="saldo-header">Mi Dinero</h3>
+                            <button onclick="speakSystem('Su dinero total disponible para retirar o pagar cuentas es de cuatrocientos cincuenta dólares.')" class="p-2 text-emerald-600 bg-emerald-50 rounded-full hover:bg-emerald-100 app-btn-secondary">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+
+                        <!-- Contenido Explicativo de Saldo -->
+                        <div class="my-auto space-y-6 text-center">
+                            <div class="inline-flex p-5 bg-blue-100 text-blue-600 rounded-full text-4xl app-icon">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            
+                            <div>
+                                <p class="text-sm text-slate-500 font-bold tracking-wider uppercase app-text" data-translate="saldo-label">DINERO QUE TIENE HOY</p>
+                                <h1 class="text-4xl font-black text-slate-900 mt-2 app-text">$ 450.00</h1>
+                                <p class="text-xs text-slate-400 mt-1 app-text">Pesos / Dólares Equivalentes</p>
+                            </div>
+
+                            <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl app-card">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <p class="text-xs text-emerald-800 text-left font-semibold app-text" data-translate="saldo-alert">
+                                        ¡Su pensión mensual ya se depositó con éxito y está lista para ser cobrada!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón para cobrarlo directamente -->
+                        <button onclick="goToAppScreen('screen-qr')" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 transition app-btn-accent">
+                            <i class="fa-solid fa-money-bill-wave"></i> <span data-translate="saldo-btn">IR A COBRAR DINERO</span>
+                        </button>
+                    </div>
+
+                    <!-- PANTALLA 4: COBRO DE BONO / RETIRO DE DINERO (QR) -->
+                    <div id="screen-qr" class="phone-screen absolute inset-0 pt-12 pb-6 px-5 flex flex-col justify-between z-10 hidden bg-slate-50 app-bg">
+                        <!-- Cabecera Volver -->
+                        <div class="flex items-center justify-between">
+                            <button onclick="goToAppScreen('screen-home')" class="p-2 text-slate-600 font-extrabold hover:text-slate-800 flex items-center gap-1 app-btn-secondary rounded-lg">
+                                <i class="fa-solid fa-arrow-left text-lg"></i> <span class="text-xs" data-translate="btn-volver">VOLVER</span>
+                            </button>
+                            <h3 class="font-black text-sm text-slate-800 app-text" data-translate="cobro-header">Retiro de Dinero</h3>
+                            <button onclick="speakSystem('Muestre este código gigante en la farmacia, tienda autorizada o cajero para recibir sus billetes de inmediato.')" class="p-2 text-emerald-600 bg-emerald-50 rounded-full hover:bg-emerald-100 app-btn-secondary">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+
+                        <!-- Indicación visual muy simple -->
+                        <div class="my-auto text-center space-y-4">
+                            <p class="text-xs font-black text-indigo-700 bg-indigo-50 py-1.5 px-3 rounded-full inline-block app-text" data-translate="cobro-step-1">
+                                MUESTRE ESTE DIBUJO EN LA CAJA:
+                            </p>
+                            
+                            <!-- Contenedor del Código QR Inclusivo -->
+                            <div class="p-4 bg-white border-4 border-dashed border-emerald-400 rounded-3xl inline-block shadow-md mx-auto app-card">
+                                <!-- Reemplazamos QR por una representación de dibujo muy clara y legible -->
+                                <div class="w-40 h-40 bg-slate-100 rounded-2xl flex flex-col items-center justify-center border border-slate-200 relative">
+                                    <!-- Simulamos un QR real simplificado -->
+                                    <div class="grid grid-cols-4 gap-2 p-2">
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-200 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        
+                                        <div class="w-6 h-6 bg-slate-200 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded text-emerald-600 flex items-center justify-center text-[10px]"><i class="fa-solid fa-wallet"></i></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-200 rounded"></div>
+
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-200 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-200 rounded"></div>
+                                        <div class="w-6 h-6 bg-slate-800 rounded"></div>
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-bold tracking-widest mt-1">INCLUSI-QR-450</span>
+                                </div>
+                            </div>
+
+                            <!-- Código de Números Grandes (por si el QR no escanea) -->
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-slate-400 font-bold app-text" data-translate="cobro-step-2">Ó DIGA ESTE NÚMERO AL CAJERO:</p>
+                                <span class="text-3xl font-black text-slate-800 bg-slate-100 px-4 py-1.5 rounded-2xl tracking-widest inline-block app-text">4590 - 23</span>
+                            </div>
+                        </div>
+
+                        <!-- Estado del Retiro -->
+                        <div class="p-3 bg-emerald-50 text-emerald-800 text-center text-xs font-extrabold rounded-xl border border-emerald-100 app-card">
+                            <i class="fa-solid fa-clock animate-pulse mr-1"></i> Esperando cobro en ventanilla...
+                        </div>
+                    </div>
+
+                    <!-- PANTALLA 5: PAGAR SERVICIOS (Luz, Agua) -->
+                    <div id="screen-pagos" class="phone-screen absolute inset-0 pt-12 pb-6 px-5 flex flex-col justify-between z-10 hidden bg-slate-50 app-bg">
+                        <!-- Cabecera Volver -->
+                        <div class="flex items-center justify-between">
+                            <button onclick="goToAppScreen('screen-home')" class="p-2 text-slate-600 font-extrabold hover:text-slate-800 flex items-center gap-1 app-btn-secondary rounded-lg">
+                                <i class="fa-solid fa-arrow-left text-lg"></i> <span class="text-xs" data-translate="btn-volver">VOLVER</span>
+                            </button>
+                            <h3 class="font-black text-sm text-slate-800 app-text" data-translate="pagos-header">Pagar Cuentas</h3>
+                            <button onclick="speakSystem('Seleccione el recibo que desea pagar tocando el dibujo correspondiente.')" class="p-2 text-emerald-600 bg-emerald-50 rounded-full hover:bg-emerald-100 app-btn-secondary">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+
+                        <!-- Lista de Servicios a Pagar -->
+                        <div class="my-auto space-y-4">
+                            <p class="text-xs text-slate-500 font-bold text-center app-text" data-translate="pagos-sub">¿Qué recibo desea pagar hoy?</p>
+                            
+                            <!-- Cuenta de Luz -->
+                            <div onclick="simulatePayService('LUZ', '$ 34.20')" class="p-4 bg-white hover:bg-yellow-50/50 border-2 border-slate-100 hover:border-yellow-200 rounded-2xl cursor-pointer transition flex items-center justify-between app-card">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-lg app-icon">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-xs text-slate-800 app-text" data-translate="pago-luz">RECIBO DE LUZ</h4>
+                                        <p class="text-[10px] text-red-500 font-bold app-text">Vence en 3 días</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-extrabold text-xs text-slate-900 app-text">$ 34.20</p>
+                                    <span class="text-[9px] bg-red-50 text-red-600 font-bold px-1.5 py-0.5 rounded uppercase app-text">Pagar</span>
+                                </div>
+                            </div>
+
+                            <!-- Cuenta de Agua -->
+                            <div onclick="simulatePayService('AGUA', '$ 15.00')" class="p-4 bg-white hover:bg-blue-50/50 border-2 border-slate-100 hover:border-blue-200 rounded-2xl cursor-pointer transition flex items-center justify-between app-card">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-lg app-icon">
+                                        <i class="fa-solid fa-droplet"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-xs text-slate-800 app-text" data-translate="pago-agua">RECIBO DE AGUA</h4>
+                                        <p class="text-[10px] text-red-500 font-bold app-text">Vence en 5 días</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-extrabold text-xs text-slate-900 app-text">$ 15.00</p>
+                                    <span class="text-[9px] bg-red-50 text-red-600 font-bold px-1.5 py-0.5 rounded uppercase app-text">Pagar</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón para Escanear Recibo Físico con Cámara -->
+                        <button onclick="simulateCameraScan()" class="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 font-extrabold rounded-2xl flex items-center justify-center gap-2 transition text-xs border border-purple-200 app-btn-secondary">
+                            <i class="fa-solid fa-camera"></i> <span data-translate="pagos-camera">ESCANEAR PAPEL DE RECIBO</span>
+                        </button>
+                    </div>
+
+                    <!-- PANTALLA 6: BOTÓN DE AYUDA Y ASISTENCIA CO-PILOTO -->
+                    <div id="screen-help" class="phone-screen absolute inset-0 pt-12 pb-6 px-5 flex flex-col justify-between z-10 hidden bg-slate-50 app-bg">
+                        <!-- Cabecera Volver -->
+                        <div class="flex items-center justify-between">
+                            <button onclick="goToAppScreen('screen-home')" class="p-2 text-slate-600 font-extrabold hover:text-slate-800 flex items-center gap-1 app-btn-secondary rounded-lg">
+                                <i class="fa-solid fa-arrow-left text-lg"></i> <span class="text-xs" data-translate="btn-volver">VOLVER</span>
+                            </button>
+                            <h3 class="font-black text-sm text-slate-800 app-text" data-translate="ayuda-header">Asistencia Directa</h3>
+                            <button onclick="speakSystem('Le estamos conectando de inmediato con un asesor humano entrenado para guiarle.')" class="p-2 text-emerald-600 bg-emerald-50 rounded-full hover:bg-emerald-100 app-btn-secondary">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+
+                        <!-- Llamada Humana Asistida -->
+                        <div class="my-auto text-center space-y-5">
+                            <div class="relative inline-block">
+                                <div class="w-24 h-24 rounded-full bg-blue-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center mx-auto app-card">
+                                    <!-- Avatar de Asistente Humano -->
+                                    <i class="fa-solid fa-user-tie text-5xl text-blue-500 app-icon"></i>
+                                </div>
+                                <div class="absolute bottom-0 right-1/2 translate-x-12 w-6 h-6 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center">
+                                    <div class="w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="font-black text-md text-slate-800 app-text" data-translate="ayuda-sub">Soporte Inclusivo</h3>
+                                <p class="text-xs text-slate-400 mt-0.5 app-text">Conexión de Audio y Video</p>
+                            </div>
+
+                            <div class="p-3 bg-blue-50/50 border border-blue-100 rounded-xl text-xs text-slate-600 app-card leading-relaxed">
+                                <i class="fa-solid fa-shield-halved text-blue-500 app-icon"></i> <b class="app-text">Modo Co-Piloto Seguro:</b> Puede dar acceso temporal controlado a su hijo o asesor para ayudarle.
+                            </div>
+                        </div>
+
+                        <!-- Botón de Fin de Llamada -->
+                        <div class="space-y-2">
+                            <button onclick="simulateCall()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 transition app-btn-accent">
+                                <i class="fa-solid fa-phone"></i> LLaMAR DE INMEDIATO
+                            </button>
+                            <button onclick="goToAppScreen('screen-home')" class="w-full py-3 bg-red-100 hover:bg-red-200 text-red-600 font-extrabold rounded-2xl flex items-center justify-center gap-2 transition text-xs app-btn-secondary">
+                                CANCELAR
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botón de Navegación del Sistema (Inferior Ficticio) -->
+                    <div class="flex justify-center pt-2">
+                        <button onclick="goToAppScreen('screen-home')" class="w-28 h-1.5 bg-slate-300 hover:bg-slate-400 rounded-full transition" title="Botón de Inicio Físico"></button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ALERTAS IN-APP PERSONALIZADAS (EVITANDO ALERT()) -->
+    <div id="custom-toast" class="fixed bottom-6 right-6 bg-slate-900 text-white py-4 px-6 rounded-2xl shadow-2xl border border-slate-800 z-50 transition-all duration-300 transform translate-y-24 opacity-0 flex items-center gap-3 max-w-sm">
+        <div id="toast-icon-bg" class="p-2.5 bg-blue-600 text-white rounded-xl">
+            <i id="toast-icon" class="fa-solid fa-info text-md"></i>
+        </div>
+        <div>
+            <h4 id="toast-title" class="font-black text-sm text-slate-100">Alerta</h4>
+            <p id="toast-message" class="text-xs text-slate-400 mt-0.5">Mensaje del sistema</p>
+        </div>
+    </div>
+
+    <script>
+        // Variables de Control de Estado
+        let currentProfile = 'normal';
+        let currentSpeechText = '';
+        let isMuted = false;
+
+        // Traducciones de texto para el "Modo Guiado Sin Texto"
+        const translations = {
+            normal: {
+                "auth-title": "Bienvenido a InclusiApp",
+                "auth-desc": "Acerque su rostro para ingresar de forma segura.",
+                "auth-btn": "ENTRAR CON MI ROSTRO",
+                "home-balance-label": "MI DINERO DISPONIBLE",
+                "menu-saldo": "VER MI DINERO",
+                "menu-cobrar": "COBRAR BONO",
+                "menu-pagar": "PAGAR LUZ/AGUA",
+                "menu-ayuda": "¿CÓMO SE USA?",
+                "home-sos-btn": "BOTÓN DE AUXILIO",
+                "btn-volver": "VOLVER",
+                "saldo-header": "Mi Dinero",
+                "saldo-label": "DINERO QUE TIENE HOY",
+                "saldo-alert": "¡Su pensión mensual ya se depositó con éxito y está lista para ser cobrada!",
+                "saldo-btn": "IR A COBRAR DINERO",
+                "cobro-header": "Retiro de Dinero",
+                "cobro-step-1": "MUESTRE ESTE DIBUJO EN LA CAJA:",
+                "cobro-step-2": "Ó DIGA ESTE NÚMERO AL CAJERO:",
+                "pagos-header": "Pagar Cuentas",
+                "pagos-sub": "¿Qué recibo desea pagar hoy?",
+                "pago-luz": "RECIBO DE LUZ",
+                "pago-agua": "RECIBO DE AGUA",
+                "pagos-camera": "ESCANEAR PAPEL DE RECIBO",
+                "ayuda-header": "Asistencia Directa",
+                "ayuda-sub": "Soporte Inclusivo"
+            },
+            notext: {
+                "auth-title": "¡HOLA! BIENVENIDO",
+                "auth-desc": "Toque el botón grande azul de abajo.",
+                "auth-btn": "PRESIONE AQUÍ PARA ENTRAR",
+                "home-balance-label": "MI BILLETERA TIENE",
+                "menu-saldo": "VER MI SALDO",
+                "menu-cobrar": "SACAR EFECTIVO",
+                "menu-pagar": "PAGAR RECIBOS",
+                "menu-ayuda": "PEDIR TUTORIAL",
+                "home-sos-btn": "¡NECESITO AYUDA YA!",
+                "btn-volver": "ATRÁS",
+                "saldo-header": "Mi Billetera",
+                "saldo-label": "TIENE ESTE DINERO",
+                "saldo-alert": "¡Su dinero ya está en la cuenta para usar!",
+                "saldo-btn": "VER CÓDIGO DE RETIRO",
+                "cobro-header": "Cobrar Dinero",
+                "cobro-step-1": "MUESTRE ESTO EN LA TIENDA:",
+                "cobro-step-2": "O DIGA ESTOS NÚMEROS:",
+                "pagos-header": "Mis Pagos",
+                "pagos-sub": "Pulsar recibo para pagar:",
+                "pago-luz": "SERVICIO DE ENERGÍA",
+                "pago-agua": "SERVICIO DE AGUA",
+                "pagos-camera": "TOMAR FOTO AL RECIBO",
+                "ayuda-header": "Llamar por Ayuda",
+                "ayuda-sub": "Asistencia por Teléfono"
+            }
+        };
+
+        // Inicializar hora del simulador de teléfono
+        function updatePhoneTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('phone-time').innerText = `${hours}:${minutes}`;
+        }
+        setInterval(updatePhoneTime, 1000);
+        updatePhoneTime();
+
+        // Función de Síntesis de Voz Nativa (SpeechSynthesis)
+        function speakSystem(text) {
+            currentSpeechText = text;
+            const speechBox = document.getElementById('system-speech-box');
+            if (speechBox) {
+                speechBox.innerText = `"${text}"`;
+            }
+            
+            if (isMuted) return;
+
+            // Detener cualquier reproducción previa
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES';
+            
+            // Buscar una voz nativa en español de calidad si está disponible
+            const voices = window.speechSynthesis.getVoices();
+            const esVoice = voices.find(voice => voice.lang.includes('es'));
+            if (esVoice) utterance.voice = esVoice;
+            
+            utterance.rate = 0.9; // Hablar ligeramente más pausado para adultos mayores
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const icon = document.getElementById('mute-icon');
+            if (isMuted) {
+                if (icon) icon.className = 'fa-solid fa-volume-xmark text-red-400';
+                window.speechSynthesis.cancel();
+                showToast("Voz Silenciada", "Se ha desactivado la ayuda sonora del simulador.", "warning");
+            } else {
+                if (icon) icon.className = 'fa-solid fa-volume-high';
+                showToast("Voz Activada", "Se ha vuelto a activar la guía de voz en español.", "success");
+                replayCurrentSpeech();
+            }
+        }
+
+        function replayCurrentSpeech() {
+            if (currentSpeechText) {
+                speakSystem(currentSpeechText);
+            }
+        }
+
+        // Navegación entre las Pantallas de la App del Celular
+        function goToAppScreen(screenId) {
+            // Ocultar todas las pantallas del teléfono
+            const screens = document.querySelectorAll('.phone-screen');
+            screens.forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('z-20');
+                s.classList.add('z-10');
+            });
+
+            // Mostrar la pantalla seleccionada
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+                targetScreen.classList.add('z-20');
+                targetScreen.classList.remove('z-10');
+            }
+
+            // Flujos lógicos de reproducción de ayuda sonora por pantalla
+            if (screenId === 'screen-home') {
+                readHomeStatus();
+            } else if (screenId === 'screen-saldo') {
+                speakSystem("Sección: Mi dinero. Su dinero hoy es de cuatrocientos cincuenta dólares de pensión.");
+            } else if (screenId === 'screen-qr') {
+                speakSystem("Sección de cobro de dinero. Muestre el dibujo en la pantalla de su celular al cajero para retirar sus billetes.");
+            } else if (screenId === 'screen-pagos') {
+                speakSystem("Sección para pagar recibos de luz o agua de manera segura.");
+            } else if (screenId === 'screen-help') {
+                speakSystem("Asistencia inmediata. Le estamos comunicando con un asesor que le guiará paso a paso.");
+            } else if (screenId === 'screen-auth') {
+                speakSystem("Bienvenido a su banco de confianza de InclusiApp.");
+            }
+        }
+
+        function readHomeStatus() {
+            let message = "Hola Manuel, su saldo total disponible para retirar o pagar servicios es de cuatrocientos cincuenta dólares.";
+            if (currentProfile === 'notext') {
+                message = "Hola, bienvenido. En su billetera tiene cuatrocientos cincuenta billetes disponibles.";
+            }
+            speakSystem(message);
+        }
+
+        // Simulación de Login con Biometría
+        function simulateLogin() {
+            speakSystem("Verificando identidad de Manuel Torres mediante biometría facial rápida... ¡Acceso autorizado con éxito!");
+            showToast("Acceso Autorizado", "Identidad verificada mediante rostro (Biometría Inclusiva).", "success");
+            
+            setTimeout(() => {
+                goToAppScreen('screen-home');
+            }, 1200);
+        }
+
+        // Simulación de Pago de Servicios Especial
+        function simulatePayService(serviceName, amount) {
+            speakSystem(`¿Desea realizar el pago de su servicio de ${serviceName} por un monto de ${amount}? Confirmando transacción con su rostro...`);
+            
+            // Simular un flujo de confirmación amigable
+            setTimeout(() => {
+                speakSystem(`Excelente. El pago de su servicio de ${serviceName} ha sido cancelado con éxito. Su saldo ha sido actualizado.`);
+                showToast("Pago Confirmado", `Servicio de ${serviceName} por ${amount} cancelado con éxito.`, "success");
+                goToAppScreen('screen-home');
+            }, 4000);
+        }
+
+        // Simular escaneo de recibo con cámara
+        function simulateCameraScan() {
+            speakSystem("Abriendo cámara para escanear el papel de su recibo automáticamente... ¡Perfecto! Recibo de luz reconocido.");
+            showToast("Recibo Escaneado", "Cámara reconoció recibo de luz por $ 34.20", "info");
+            setTimeout(() => {
+                simulatePayService('LUZ', '$ 34.20');
+            }, 2000);
+        }
+
+        // Simulación de llamada de auxilio / SOS
+        function triggerSOS() {
+            speakSystem("Activando botón de auxilio prioritario. Conectando con llamada de asesoría humana y alertando a su hijo registrado en modo copiloto.");
+            showToast("Alerta Auxilio Activa", "Asistente humano y copiloto familiar alertados.", "error");
+            goToAppScreen('screen-help');
+        }
+
+        function simulateCall() {
+            speakSystem("Iniciando llamada de video interactiva con soporte técnico. Aguarde un segundo.");
+            showToast("Llamando a Soporte...", "Un especialista se unirá en breve.", "info");
+        }
+
+        // Cambiar entre los diferentes perfiles del prototipo
+        function switchProfile(profile) {
+            currentProfile = profile;
+            
+            // Restablecer estilos anteriores de botones de selección
+            const buttons = ['normal', 'vision', 'notext'];
+            buttons.forEach(b => {
+                const btn = document.getElementById(`btn-perfil-${b}`);
+                if (btn) {
+                    btn.classList.remove('border-blue-600', 'bg-blue-50/50');
+                    btn.classList.add('border-slate-200');
+                }
+            });
+
+            // Activar visualmente el botón seleccionado en la columna de control
+            const activeBtn = document.getElementById(`btn-perfil-${profile}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-slate-200');
+                activeBtn.classList.add('border-blue-600', 'bg-blue-50/50');
+            }
+
+            // Gestionar checks
+            document.getElementById('check-vision').className = `fa-solid fa-circle-check ${profile === 'vision' ? 'text-yellow-600' : 'text-slate-200'} text-lg`;
+            document.getElementById('check-notext').className = `fa-solid fa-circle-check ${profile === 'notext' ? 'text-purple-600' : 'text-slate-200'} text-lg`;
+
+            // Aplicar cambios en el celular
+            const appContainer = document.getElementById('phone-app-container');
+            
+            if (profile === 'vision') {
+                appContainer.classList.add('high-contrast-mode');
+                showToast("Perfil de Alta Visión", "Interfaz de máximo contraste amarillo y negro activada.", "warning");
+                speakSystem("Perfil de alta visión activado. Contraste máximo y letras gigantes aplicados para mayor legibilidad.");
+            } else {
+                appContainer.classList.remove('high-contrast-mode');
+            }
+
+            if (profile === 'notext') {
+                // Cambiar textos a un lenguaje más simple y basado en audios
+                applyTranslations('notext');
+                showToast("Modo Sin Texto", "Textos simplificados al máximo y guía de voz intensificada.", "success");
+                speakSystem("Modo guiado sin texto activado. He simplificado las palabras y activado el guiado por voz continuo.");
+            } else {
+                applyTranslations('normal');
+                if (profile === 'normal') {
+                    showToast("Perfil Estándar", "Configuración por defecto de InclusiApp cargada.", "info");
+                    speakSystem("Perfil de adulto mayor estándar cargado.");
+                }
+            }
+        }
+
+        // Aplicación de traducción/simplificación dinámica en el árbol DOM del teléfono
+        function applyTranslations(mode) {
+            const dataElems = document.querySelectorAll('[data-translate]');
+            dataElems.forEach(elem => {
+                const key = elem.getAttribute('data-translate');
+                if (translations[mode] && translations[mode][key]) {
+                    elem.innerText = translations[mode][key];
+                }
+            });
+        }
+
+        // Resaltar una característica de la App a solicitud de la tabla de Requerimientos
+        function highlightFeature(reqId, description) {
+            speakSystem(`Requerimiento analizado: ${description}`);
+            showToast(`Requerimiento ${reqId.toUpperCase()}`, description, "info");
+        }
+
+        // Custom Toast en vez de alert()
+        function showToast(title, message, type = 'info') {
+            const toast = document.getElementById('custom-toast');
+            const iconBg = document.getElementById('toast-icon-bg');
+            const icon = document.getElementById('toast-icon');
+            
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+
+            // Ajuste de colores por tipo de alerta
+            if (type === 'success') {
+                iconBg.className = "p-2.5 bg-emerald-600 text-white rounded-xl";
+                icon.className = "fa-solid fa-check";
+            } else if (type === 'warning') {
+                iconBg.className = "p-2.5 bg-yellow-500 text-slate-900 rounded-xl";
+                icon.className = "fa-solid fa-triangle-exclamation";
+            } else if (type === 'error') {
+                iconBg.className = "p-2.5 bg-red-600 text-white rounded-xl";
+                icon.className = "fa-solid fa-phone-volume";
+            } else {
+                iconBg.className = "p-2.5 bg-blue-600 text-white rounded-xl";
+                icon.className = "fa-solid fa-info";
+            }
+
+            // Transición del Toast
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 4500);
+        }
+
+        // Inicialización tras cargar ventana
+        window.onload = function() {
+            // Un retraso amigable para iniciar la voz guía para evitar el bloqueo inicial del navegador
+            setTimeout(() => {
+                speakSystem("Bienvenido a InclusiApp. Presione entrar con mi rostro para iniciar el simulador de banca inclusiva.");
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
