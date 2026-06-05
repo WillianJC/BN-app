@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import pool from "./db";
+import sql from "./db";
 
 const server = serve({
   port: 3001,
@@ -8,8 +8,8 @@ const server = serve({
 
     if (url.pathname === "/db") {
       try {
-        const result = await pool.query("SELECT NOW()");
-        return Response.json({ success: true, time: result.rows[0] });
+        const rows = await sql`SELECT NOW()`;
+        return Response.json({ success: true, time: rows[0] });
       } catch (err) {
         return Response.json({ success: false, error: String(err) }, { status: 500 });
       }
@@ -19,4 +19,4 @@ const server = serve({
   },
 });
 
-console.log(`☕ Server running at http://localhost:${server.port} — I'm a teapot!`);
+console.log(`Server running at http://localhost:${server.port} — I'm a teapot!`);
