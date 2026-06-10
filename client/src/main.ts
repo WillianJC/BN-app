@@ -141,7 +141,7 @@ root.innerHTML = `
 						</div>
 					</div>
 
-					<div class="login-form">
+          <div class="login-form is-hidden">
 						<input type="text" id="login-name" class="login-input is-hidden" placeholder="Nombre completo" autocomplete="name" />
 						<input type="email" id="login-email" class="login-input" placeholder="Correo electrónico" autocomplete="email" />
 						<input type="password" id="login-password" class="login-input" placeholder="Contraseña" autocomplete="current-password" />
@@ -609,10 +609,12 @@ async function goHome(): Promise<void> {
 }
 
 function updateAuthUI(): void {
+  const loginForm = root.querySelector<HTMLElement>(".login-form");
   const nameInput = root.querySelector<HTMLElement>("#login-name");
   const submitBtn = root.querySelector<HTMLElement>("#btn-auth-submit span");
   const modeText = root.querySelector<HTMLElement>("#auth-mode-text");
 
+  if (loginForm) loginForm.classList.toggle("is-hidden", !state.isRegisterMode);
   if (nameInput) nameInput.classList.toggle("is-hidden", !state.isRegisterMode);
   if (submitBtn)
     submitBtn.textContent = state.isRegisterMode

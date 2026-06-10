@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+.is-hidden {
+  display: none !important;
+}
+
 :root {
   color-scheme: light;
   --bg-1: #eef3f9;
