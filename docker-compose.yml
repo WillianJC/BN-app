@@ -3,11 +3,11 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${PG_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-bnapp}
-      POSTGRES_USER: ${POSTGRES_USER:-bnapp}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bnapp_secret}
+      POSTGRES_DB: ${PG_DB:-bnapp}
+      POSTGRES_USER: ${PG_USER:-bnapp}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-bnapp_secret}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./server/sql:/docker-entrypoint-initdb.d
