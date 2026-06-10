@@ -22,7 +22,7 @@ services:
       - "${SERVER_PORT:-3001}:3001"
     environment:
       SERVER_PORT: ${SERVER_PORT:-3001}
-      APP_HOST: ${APP_HOST:-0.0.0.0}
+      APP_HOST: 0.0.0.0
       PRODUCTION: ${PRODUCTION:-false}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3001}
       ENV_FILE_PATH: ""
@@ -39,6 +39,7 @@ services:
       JWT_COOKIE_NAME: ${JWT_COOKIE_NAME:-token}
       COOKIE_HTTP_ONLY: ${COOKIE_HTTP_ONLY:-true}
       COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-lax}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
       COOKIE_MAX_AGE: ${COOKIE_MAX_AGE:-604800000}
       BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-10}
       DEFAULT_USER_ROLE: ${DEFAULT_USER_ROLE:-user}

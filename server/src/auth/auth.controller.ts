@@ -16,9 +16,11 @@ export class AuthController {
   ) {}
 
   private get cookieOptions() {
+    const sameSite = this.configService.get<'lax' | 'strict' | 'none'>('COOKIE_SAME_SITE', 'lax');
     return {
       httpOnly: this.configService.get<string>('COOKIE_HTTP_ONLY', 'true') === 'true',
-      sameSite: this.configService.get<'lax' | 'strict' | 'none'>('COOKIE_SAME_SITE', 'lax'),
+      sameSite,
+      secure: sameSite === 'none' || this.configService.get<string>('COOKIE_SECURE', 'false') === 'true',
       maxAge: parseInt(this.configService.get<string>('COOKIE_MAX_AGE', '604800000')),
     };
   }
