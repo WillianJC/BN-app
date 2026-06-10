@@ -14,7 +14,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ message: "Unknown error" }));
-    throw { message: body.message ?? "Request failed", statusCode: res.status } as ApiError;
+    throw {
+      message: body.message ?? "Request failed",
+      statusCode: res.status,
+    } as ApiError;
   }
 
   return res.json() as Promise<T>;
@@ -82,7 +85,9 @@ export async function login(dto: LoginDto): Promise<AuthResponse> {
   });
 }
 
-export async function register(dto: LoginDto & { name: string }): Promise<AuthResponse> {
+export async function register(
+  dto: LoginDto & { name: string },
+): Promise<AuthResponse> {
   return request<AuthResponse>("/auth/register", {
     method: "POST",
     body: JSON.stringify(dto),
@@ -97,35 +102,98 @@ export async function getWallet(): Promise<WalletResponse> {
   return request<WalletResponse>("/finances/wallet");
 }
 
-export async function getTransactions(page = 1, limit?: number): Promise<TransactionsResponse> {
+export async function getTransactions(
+  page = 1,
+  limit?: number,
+): Promise<TransactionsResponse> {
   limit = limit ?? parseInt(import.meta.env.VITE_DEFAULT_PAGE_LIMIT ?? "20");
-  return request<TransactionsResponse>(`/finances/transactions?page=${page}&limit=${limit}`);
+  return request<TransactionsResponse>(
+    `/finances/transactions?page=${page}&limit=${limit}`,
+  );
 }
 
-export async function transfer(dto: TransferDto): Promise<{ message: string; amount: number }> {
+export async function transfer(
+  dto: TransferDto,
+): Promise<{ message: string; amount: number }> {
   return request("/finances/transfer", {
     method: "POST",
     body: JSON.stringify(dto),
   });
 }
 
-export async function withdraw(dto: WithdrawDto): Promise<{ message: string; amount: number }> {
+export async function withdraw(
+  dto: WithdrawDto,
+): Promise<{ message: string; amount: number }> {
   return request("/finances/withdraw", {
     method: "POST",
     body: JSON.stringify(dto),
   });
 }
 
-export async function collectPension(): Promise<{ message: string; amount: number }> {
+export async function collectPension(): Promise<{
+  message: string;
+  amount: number;
+}> {
   return request("/finances/pension", { method: "POST" });
 }
 
-export async function collectBonus(): Promise<{ message: string; amount: number }> {
+export async function collectBonus(): Promise<{
+  message: string;
+  amount: number;
+}> {
   return request("/finances/bonus", { method: "POST" });
 }
 
-export async function payUtility(dto: UtilityPaymentDto): Promise<{ message: string; amount: number }> {
+export async function payUtility(
+  dto: UtilityPaymentDto,
+): Promise<{ message: string; amount: number }> {
   return request("/finances/pay-utility", {
+    method: "POST",
+    body: JSON.stringify(dto),
+  });
+}
+
+export interface BiometricLoginDto {
+  dni: string;
+}
+
+export interface BiometricLoginResponse {
+  message: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
+export async function biometricLogin(
+  dto: BiometricLoginDto,
+): Promise<BiometricLoginResponse> {
+  return request<BiometricLoginResponse>("/auth/biometric-login", {
+    method: "POST",
+    body: JSON.stringify(dto),
+  });
+}
+
+export interface BiometricLoginDto {
+  dni: string;
+}
+
+export interface BiometricLoginResponse {
+  message: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
+export async function biometricLogin(
+  dto: BiometricLoginDto,
+): Promise<BiometricLoginResponse> {
+  return request<BiometricLoginResponse>("/auth/biometric-login", {
     method: "POST",
     body: JSON.stringify(dto),
   });
