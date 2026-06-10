@@ -9,6 +9,11 @@ async function bootstrap() {
     logger: new LoggerService('Bootstrap'),
   });
 
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:3001'],
+    credentials: true,
+  });
+
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 

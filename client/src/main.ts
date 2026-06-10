@@ -1,4 +1,5 @@
 import "./styles.css";
+import * as api from "./api";
 
 type Profile = "normal" | "vision" | "notext";
 type ScreenId = "screen-auth" | "screen-home" | "screen-saldo" | "screen-qr" | "screen-pagos" | "screen-help";
@@ -134,13 +135,22 @@ root.innerHTML = `
 							<i class="fa-solid fa-face-smile app-icon"></i>
 							<div class="scanner-line" aria-hidden="true"></div>
 						</div>
-						<span class="status-note app-copy"><i class="fa-solid fa-shield-halved"></i> Reconocimiento Activo</span>
+					</div>
+
+					<div class="login-form">
+						<input type="text" id="login-name" class="login-input is-hidden" placeholder="Nombre completo" autocomplete="name" />
+						<input type="email" id="login-email" class="login-input" placeholder="Correo electrónico" autocomplete="email" />
+						<input type="password" id="login-password" class="login-input" placeholder="Contraseña" autocomplete="current-password" />
 					</div>
 
 					<div class="screen-actions">
-						<button type="button" class="primary-action app-btn-accent" data-action="login">
+						<button type="button" class="primary-action app-btn-accent" data-action="login" id="btn-auth-submit">
 							<i class="fa-solid fa-fingerprint"></i>
 							<span data-translate="auth-btn">ENTRAR CON MI ROSTRO</span>
+						</button>
+						<button type="button" class="secondary-action app-btn-secondary" data-action="toggle-auth-mode">
+							<i class="fa-solid fa-user-plus"></i>
+							<span id="auth-mode-text">CREAR CUENTA NUEVA</span>
 						</button>
 						<button type="button" class="secondary-action app-btn-secondary" data-action="speak-auth">
 							<i class="fa-solid fa-volume-high"></i>
@@ -212,9 +222,13 @@ root.innerHTML = `
 							<i class="fa-solid fa-circle-check"></i>
 							<p class="app-copy strong" data-translate="saldo-alert">¡Su pensión mensual ya se depositó con éxito y está lista para ser cobrada!</p>
 						</div>
+						<button type="button" class="primary-action app-btn-accent" data-action="collect-pension">
+							<i class="fa-solid fa-hand-holding-dollar"></i>
+							<span>COBRAR PENSIÓN ($1,200)</span>
+						</button>
 					</div>
 
-					<button type="button" class="primary-action app-btn-accent" data-action="screen" data-screen="screen-qr">
+					<button type="button" class="secondary-action app-btn-secondary" data-action="screen" data-screen="screen-qr">
 						<i class="fa-solid fa-qrcode"></i>
 						<span data-translate="saldo-btn">IR A COBRAR DINERO</span>
 					</button>
@@ -248,6 +262,10 @@ root.innerHTML = `
 							<i class="fa-solid fa-circle-info"></i>
 							<p class="app-copy strong">Lleve el código al cajero o tienda autorizada.</p>
 						</div>
+						<button type="button" class="primary-action app-btn-accent" data-action="collect-bonus">
+							<i class="fa-solid fa-gift"></i>
+							<span>COBRAR BONO ($500)</span>
+						</button>
 					</div>
 				</section>
 
@@ -350,6 +368,11 @@ const state = {
 	muted: false,
 	currentSpeechText: "",
 	toastTimer: 0 as number | undefined,
+	userName: "Manuel Torres",
+	userEmail: "",
+	balance: 0,
+	userId: "",
+	isRegisterMode: false,
 };
 
 const elements = {
@@ -365,14 +388,23 @@ const elements = {
 	toastMessage: root.querySelector<HTMLElement>("#toast-message"),
 };
 
-const screenMessages: Record<ScreenId, string> = {
-	"screen-auth": "Bienvenido a su banco de confianza de InclusiApp.",
-	"screen-home": "Sección principal. Aquí puede ver su dinero, cobrar bonos, pagar cuentas o pedir ayuda.",
-	"screen-saldo": "Sección: Mi dinero. Su dinero hoy es de cuatrocientos cincuenta dólares de pensión.",
-	"screen-qr": "Sección de cobro de dinero. Muestre el dibujo en la pantalla de su celular al cajero para retirar sus billetes.",
-	"screen-pagos": "Sección para pagar recibos de luz o agua de manera segura.",
-	"screen-help": "Asistencia inmediata. Le estamos comunicando con un asesor que le guiará paso a paso.",
-};
+function getBalanceSpeech(): string {
+	const bal = state.balance.toFixed(2);
+	const [whole, cents] = bal.split(".");
+	return `${whole} dólares con ${cents} centavos`;
+}
+
+function getScreenMessage(screenId: ScreenId): string {
+	const messages: Record<ScreenId, string> = {
+		"screen-auth": "Bienvenido a su banco de confianza de InclusiApp.",
+		"screen-home": `Sección principal. Su saldo es de ${getBalanceSpeech()}. Puede cobrar bonos, pagar cuentas o pedir ayuda.`,
+		"screen-saldo": `Sección: Mi dinero. Su saldo actual es de ${getBalanceSpeech()}.`,
+		"screen-qr": "Sección de cobro de dinero. Muestre el dibujo en la pantalla de su celular al cajero para retirar sus billetes.",
+		"screen-pagos": "Sección para pagar recibos de luz o agua de manera segura.",
+		"screen-help": "Asistencia inmediata. Le estamos comunicando con un asesor que le guiará paso a paso.",
+	};
+	return messages[screenId];
+}
 
 function updatePhoneTime(): void {
 	if (!elements.phoneTime) {
@@ -426,7 +458,13 @@ function updateScreenVisibility(): void {
 function setScreen(screenId: ScreenId): void {
 	state.currentScreen = screenId;
 	updateScreenVisibility();
-	speakSystem(screenMessages[screenId]);
+	if (screenId === "screen-home" || screenId === "screen-saldo") {
+		fetchAndUpdateBalance().then(() => {
+			speakSystem(getScreenMessage(screenId));
+		});
+	} else {
+		speakSystem(getScreenMessage(screenId));
+	}
 }
 
 function showToast(title: string, message: string, kind: ToastKind = "info"): void {
@@ -526,13 +564,95 @@ function switchProfile(profile: Profile): void {
 	);
 }
 
-function goHome(): void {
+async function goHome(): Promise<void> {
+	if (state.userId) {
+		await fetchAndUpdateBalance();
+	}
 	setScreen("screen-home");
 }
 
-function simulateLogin(): void {
-	showToast("Ingreso correcto", "Reconocimiento facial simulado con éxito.", "success");
-	setScreen("screen-home");
+function updateAuthUI(): void {
+	const nameInput = root.querySelector<HTMLElement>("#login-name");
+	const submitBtn = root.querySelector<HTMLElement>("#btn-auth-submit span");
+	const modeText = root.querySelector<HTMLElement>("#auth-mode-text");
+
+	if (nameInput) nameInput.classList.toggle("is-hidden", !state.isRegisterMode);
+	if (submitBtn) submitBtn.textContent = state.isRegisterMode ? "CREAR CUENTA" : "ENTRAR CON MI ROSTRO";
+	if (modeText) modeText.textContent = state.isRegisterMode ? "YA TENGO CUENTA" : "CREAR CUENTA NUEVA";
+}
+
+function toggleAuthMode(): void {
+	state.isRegisterMode = !state.isRegisterMode;
+	updateAuthUI();
+}
+
+async function handleAuth(): Promise<void> {
+	const emailInput = root.querySelector<HTMLInputElement>("#login-email");
+	const passwordInput = root.querySelector<HTMLInputElement>("#login-password");
+	const nameInput = root.querySelector<HTMLInputElement>("#login-name");
+	const email = emailInput?.value.trim();
+	const password = passwordInput?.value.trim();
+	const name = nameInput?.value.trim();
+
+	if (!email || !password) {
+		showToast("Campos requeridos", "Ingrese su correo y contraseña para continuar.", "warning");
+		speakSystem("Por favor ingrese su correo electrónico y contraseña en los campos de texto.");
+		return;
+	}
+
+	if (state.isRegisterMode && !name) {
+		showToast("Nombre requerido", "Ingrese su nombre completo para registrarse.", "warning");
+		return;
+	}
+
+	try {
+		if (state.isRegisterMode) {
+			await api.register({ name: name!, email, password });
+		}
+		await api.login({ email, password });
+		const me = await api.getMe();
+		state.userEmail = email;
+		state.userId = me.sub;
+		state.userName = me.email ?? email;
+		const namePart = state.userName.split("@")[0];
+		const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+		state.userName = displayName;
+
+		const avatar = root.querySelector<HTMLElement>(".avatar");
+		if (avatar) avatar.textContent = displayName.charAt(0).toUpperCase();
+		const userNameEl = root.querySelector<HTMLElement>(".user-chip h3");
+		if (userNameEl) userNameEl.textContent = displayName;
+
+		state.isRegisterMode = false;
+		updateAuthUI();
+		showToast("Ingreso correcto", "Bienvenido a InclusiApp.", "success");
+		await fetchAndUpdateBalance();
+		setScreen("screen-home");
+	} catch (err) {
+		const error = err as { message?: string };
+		showToast("Error de ingreso", error.message ?? "Credenciales inválidas.", "warning");
+		speakSystem("No se pudo iniciar sesión. Verifique su correo y contraseña.");
+	}
+}
+
+async function fetchAndUpdateBalance(): Promise<void> {
+	try {
+		const wallet = await api.getWallet();
+		state.balance = wallet.balance;
+		updateBalanceUI();
+	} catch {
+		showToast("Error", "No se pudo obtener el saldo.", "warning");
+	}
+}
+
+function updateBalanceUI(): void {
+	const formatted = state.balance.toFixed(2);
+	root.querySelectorAll<HTMLElement>(".balance-amount").forEach((el) => {
+		el.innerHTML = `$ ${formatted} <span>USD</span>`;
+	});
+	root.querySelectorAll<HTMLElement>(".balance-big").forEach((el) => {
+		el.textContent = `$ ${formatted}`;
+	});
 }
 
 function triggerSOS(): void {
@@ -540,9 +660,45 @@ function triggerSOS(): void {
 	showToast("Llamando ayuda", "Se está conectando con un asesor humano.", "warning");
 }
 
-function simulatePayService(serviceName: string, amount: string): void {
-	showToast(`${serviceName} seleccionado`, `Se iniciará el pago por ${amount}.`, "success");
-	speakSystem(`Ha elegido pagar ${serviceName} por ${amount}.`);
+async function simulatePayService(serviceName: string, amount: number, utilityType: api.UtilityPaymentDto["utilityType"]): Promise<void> {
+	try {
+		const invoiceNumber = `F${String(Date.now()).slice(-6)}`;
+		const result = await api.payUtility({
+			utilityType,
+			amount,
+			invoiceNumber,
+		});
+		showToast("Pago exitoso", `${serviceName} pagado por $${amount.toFixed(2)}.`, "success");
+		speakSystem(`Se realizó el pago de ${serviceName} por ${amount} dólares.`);
+		await fetchAndUpdateBalance();
+	} catch (err) {
+		const error = err as { message?: string };
+		showToast("Error de pago", error.message ?? "No se pudo procesar el pago.", "warning");
+	}
+}
+
+async function handleCollectPension(): Promise<void> {
+	try {
+		const result = await api.collectPension();
+		showToast("Pensión cobrada", `Se depositaron $${result.amount.toFixed(2)} en su cuenta.`, "success");
+		speakSystem("Su pensión de mil doscientos dólares ha sido cobrada con éxito.");
+		await fetchAndUpdateBalance();
+	} catch (err) {
+		const error = err as { message?: string };
+		showToast("Error", error.message ?? "No se pudo cobrar la pensión.", "warning");
+	}
+}
+
+async function handleCollectBonus(): Promise<void> {
+	try {
+		const result = await api.collectBonus();
+		showToast("Bono cobrado", `Se depositaron $${result.amount.toFixed(2)} en su cuenta.`, "success");
+		speakSystem("Su bono de quinientos dólares ha sido cobrado con éxito.");
+		await fetchAndUpdateBalance();
+	} catch (err) {
+		const error = err as { message?: string };
+		showToast("Error", error.message ?? "No se pudo cobrar el bono.", "warning");
+	}
 }
 
 function simulateCameraScan(): void {
@@ -579,7 +735,12 @@ root.addEventListener("click", (event) => {
 	}
 
 	if (action === "login") {
-		simulateLogin();
+		handleAuth();
+		return;
+	}
+
+	if (action === "toggle-auth-mode") {
+		toggleAuthMode();
 		return;
 	}
 
@@ -589,12 +750,12 @@ root.addEventListener("click", (event) => {
 	}
 
 	if (action === "speak-home") {
-		speakSystem("Su saldo disponible es de cuatrocientos cincuenta dólares. Puede cobrar bonos, pagar servicios o pedir ayuda.");
+		speakSystem(`Su saldo disponible es de ${getBalanceSpeech()}. Puede cobrar bonos, pagar servicios o pedir ayuda.`);
 		return;
 	}
 
 	if (action === "speak-saldo") {
-		speakSystem("Su dinero hoy es de cuatrocientos cincuenta dólares de pensión.");
+		speakSystem(`Su saldo actual es de ${getBalanceSpeech()}.`);
 		return;
 	}
 
@@ -634,13 +795,23 @@ root.addEventListener("click", (event) => {
 	if (action === "pay-service") {
 		const service = target.dataset.service;
 		if (service === "LUZ") {
-			simulatePayService("Luz", "$ 34.20");
+			simulatePayService("Luz", 34.20, "ELECTRICITY");
 			return;
 		}
 
 		if (service === "AGUA") {
-			simulatePayService("Agua", "$ 15.00");
+			simulatePayService("Agua", 15.00, "WATER");
 		}
+		return;
+	}
+
+	if (action === "collect-pension") {
+		handleCollectPension();
+		return;
+	}
+
+	if (action === "collect-bonus") {
+		handleCollectBonus();
 		return;
 	}
 
