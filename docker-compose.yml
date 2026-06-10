@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bnapp_secret}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./server/sql:/docker-entrypoint-initdb.d
 
   server:
     build:
