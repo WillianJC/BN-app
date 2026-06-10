@@ -14,7 +14,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     FinancesModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '../.env',
+      envFilePath: process.env.ENV_FILE_PATH ?? '../.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -28,10 +28,10 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
         database: configService.get<string>('PG_DB'),
         ssl:
           configService.get<string>('PG_SSLMODE') === 'require'
-            ? { rejectUnauthorized: false }
+            ? { rejectUnauthorized: configService.get<string>('PG_SSL_REJECT_UNAUTHORIZED', 'false') === 'true' }
             : false,
         autoLoadEntities: true,
-        synchronize: configService.get<string>('PRODUCTION', 'false') !== 'true',
+        synchronize: configService.get<string>('TYPEORM_SYNC', 'false') === 'true',
       }),
     }),
   ],

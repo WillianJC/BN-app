@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -13,6 +14,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -21,8 +23,10 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const hashed = await bcrypt.hash(dto.password, 10);
-    const user = this.userRepo.create({ name: dto.name, email: dto.email, password: hashed });
+    const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS', '10'));
+    const hashed = await bcrypt.hash(dto.password, saltRounds);
+    const defaultRole = this.configService.get<string>('DEFAULT_USER_ROLE', 'user');
+    const user = this.userRepo.create({ name: dto.name, email: dto.email, password: hashed, role: defaultRole });
     await this.userRepo.save(user);
 
     const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };

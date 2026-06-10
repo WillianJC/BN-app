@@ -1,4 +1,8 @@
 FROM oven/bun:1 AS builder
+ARG VITE_API_URL
+ARG VITE_HTML_LANG
+ARG VITE_APP_TITLE
+ARG VITE_DEFAULT_PAGE_LIMIT
 WORKDIR /app
 COPY package.json ./
 RUN bun install

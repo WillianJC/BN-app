@@ -18,11 +18,30 @@ services:
     ports:
       - "${SERVER_PORT:-3001}:3001"
     environment:
+      SERVER_PORT: ${SERVER_PORT:-3001}
+      APP_HOST: ${APP_HOST:-0.0.0.0}
+      PRODUCTION: ${PRODUCTION:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3001}
+      ENV_FILE_PATH: ""
+      TYPEORM_SYNC: ${TYPEORM_SYNC:-false}
       PG_HOST: postgres
       PG_PORT: "5432"
       PG_USER: ${PG_USER:-bnapp}
       PG_PASSWORD: ${PG_PASSWORD:-bnapp_secret}
       PG_DB: ${PG_DB:-bnapp}
+      PG_SSLMODE: ${PG_SSLMODE:-disabled}
+      PG_SSL_REJECT_UNAUTHORIZED: ${PG_SSL_REJECT_UNAUTHORIZED:-false}
+      JWT_SECRET: ${JWT_SECRET:-changeme_super_secret_key}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_COOKIE_NAME: ${JWT_COOKIE_NAME:-token}
+      COOKIE_HTTP_ONLY: ${COOKIE_HTTP_ONLY:-true}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-lax}
+      COOKIE_MAX_AGE: ${COOKIE_MAX_AGE:-604800000}
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-10}
+      DEFAULT_USER_ROLE: ${DEFAULT_USER_ROLE:-user}
+      PENSION_AMOUNT: ${PENSION_AMOUNT:-1200}
+      BONUS_AMOUNT: ${BONUS_AMOUNT:-500}
+      DEFAULT_PAGE_SIZE: ${DEFAULT_PAGE_SIZE:-20}
     depends_on:
       - postgres
 
@@ -30,6 +49,11 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://server:3001}
+        VITE_HTML_LANG: ${VITE_HTML_LANG:-es}
+        VITE_APP_TITLE: ${VITE_APP_TITLE:-InclusiApp}
+        VITE_DEFAULT_PAGE_LIMIT: ${VITE_DEFAULT_PAGE_LIMIT:-20}
     ports:
       - "${CLIENT_PORT:-5173}:80"
     depends_on:
