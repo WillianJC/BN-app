@@ -121,11 +121,7 @@ const actionCards = [
   },
 ] as const;
 
-const root = document.querySelector<HTMLDivElement>("#root");
-
-if (!root) {
-  throw new Error("No se encontró el nodo #root.");
-}
+const root = document.querySelector<HTMLDivElement>("#root")!;
 
 root.innerHTML = `
 	<div class="app-stage">
@@ -633,7 +629,7 @@ function toggleAuthMode(): void {
   updateAuthUI();
 }
 
-async function handleBiometricLogin(): Promise<void> {
+async function handleFaceRecognitionOnly(): Promise<void> {
   const faceRing = root.querySelector<HTMLElement>(".face-ring");
   let stream: MediaStream | null = null;
 
