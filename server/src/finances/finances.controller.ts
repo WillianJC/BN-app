@@ -23,8 +23,8 @@ export class FinancesController {
   ) {
     return this.financesService.getTransactions(
       user.sub,
-      Number(page) || 1,
-      Number(limit) || 20,
+      page ? Number(page) : undefined,
+      limit ? Number(limit) : undefined,
     );
   }
 

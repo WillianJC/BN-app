@@ -1,4 +1,4 @@
-const BASE = "";
+const BASE = import.meta.env.VITE_API_URL ?? "";
 
 interface ApiError {
   message: string;
@@ -97,7 +97,8 @@ export async function getWallet(): Promise<WalletResponse> {
   return request<WalletResponse>("/finances/wallet");
 }
 
-export async function getTransactions(page = 1, limit = 20): Promise<TransactionsResponse> {
+export async function getTransactions(page = 1, limit?: number): Promise<TransactionsResponse> {
+  limit = limit ?? parseInt(import.meta.env.VITE_DEFAULT_PAGE_LIMIT ?? "20");
   return request<TransactionsResponse>(`/finances/transactions?page=${page}&limit=${limit}`);
 }
 

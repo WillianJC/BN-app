@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
@@ -21,6 +22,7 @@ export class FinancesService {
     @InjectRepository(Transaction)
     private readonly transactionRepo: Repository<Transaction>,
     private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
   ) {}
 
   private async getOrCreateWallet(userId: string): Promise<Wallet> {
@@ -37,7 +39,9 @@ export class FinancesService {
     return { id: wallet.id, balance: Number(wallet.balance) };
   }
 
-  async getTransactions(userId: string, page = 1, limit = 20) {
+  async getTransactions(userId: string, page = 1, limit?: number) {
+    const defaultLimit = parseInt(this.configService.get<string>('DEFAULT_PAGE_SIZE', '20'));
+    limit = limit ?? defaultLimit;
     const wallet = await this.getOrCreateWallet(userId);
     const [items, total] = await this.transactionRepo.findAndCount({
       where: { walletId: wallet.id },
@@ -143,7 +147,7 @@ export class FinancesService {
   }
 
   async collectPension(userId: string) {
-    const pensionAmount = 1200;
+    const pensionAmount = parseInt(this.configService.get<string>('PENSION_AMOUNT', '1200'));
 
     return this.dataSource.transaction(async (em) => {
       const wallet = await em.findOne(Wallet, {
@@ -174,7 +178,7 @@ export class FinancesService {
   }
 
   async collectBonus(userId: string) {
-    const bonusAmount = 500;
+    const bonusAmount = parseInt(this.configService.get<string>('BONUS_AMOUNT', '500'));
 
     return this.dataSource.transaction(async (em) => {
       const wallet = await em.findOne(Wallet, {
