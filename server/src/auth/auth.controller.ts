@@ -85,6 +85,18 @@ export class AuthController {
     return user;
   }
 
+  @Get('session')
+  session(@CurrentUser() user: JwtPayload) {
+    return {
+      authenticated: true,
+      user: {
+        sub: user.sub,
+        email: user.email ?? null,
+        role: user.role ?? null,
+      },
+    };
+  }
+
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(this.cookieName, {

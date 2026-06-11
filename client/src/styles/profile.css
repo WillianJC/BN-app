@@ -1,0 +1,58 @@
+.high-contrast-mode {
+  color: #ffff00;
+  background: #000000;
+}
+
+.high-contrast-mode .app-stage {
+  background: #000000;
+}
+
+.high-contrast-mode .app-shell {
+  background: #000000;
+  border-color: #ffff00;
+}
+
+.high-contrast-mode .app-card,
+.high-contrast-mode .phone-screen,
+.high-contrast-mode .notice-card,
+.high-contrast-mode .toast,
+.high-contrast-mode .secondary-action,
+.high-contrast-mode .back-button,
+.high-contrast-mode .mini-action,
+.high-contrast-mode .logout-action,
+.high-contrast-mode .service-item,
+.high-contrast-mode .profile-pill {
+  background: #000000;
+  color: #ffff00;
+  border-color: #ffff00;
+}
+
+.high-contrast-mode .app-copy,
+.high-contrast-mode .eyebrow,
+.high-contrast-mode .balance-label,
+.high-contrast-mode .service-item p {
+  color: #ffff00;
+}
+
+.high-contrast-mode .app-btn-accent,
+.high-contrast-mode .primary-action,
+.high-contrast-mode .sos-button {
+  background: #00ffff;
+  color: #000000;
+  border: 2px solid #ffff00;
+}
+
+.high-contrast-mode .profile-pill.is-active {
+  background: #ffff00;
+  color: #000000;
+}
+
+.high-contrast-mode .balance-card,
+.high-contrast-mode .action-icon,
+.high-contrast-mode .money-icon,
+.high-contrast-mode .support-avatar,
+.high-contrast-mode .toast-icon,
+.high-contrast-mode .error-icon {
+  background: #00ffff;
+  color: #000000;
+}
