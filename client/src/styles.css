@@ -523,6 +523,16 @@ button:focus-visible {
   align-items: center;
 }
 
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.logout-action {
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.95);
+}
+
 .screen-toolbar h3 {
   font-size: 1rem;
   color: #0f172a;
@@ -1039,6 +1049,7 @@ body {
 .high-contrast-mode .secondary-action,
 .high-contrast-mode .back-button,
 .high-contrast-mode .mini-action,
+.high-contrast-mode .logout-action,
 .high-contrast-mode .voice-button--secondary,
 .high-contrast-mode .service-item,
 .high-contrast-mode .notice-card,

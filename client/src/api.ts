@@ -5,7 +5,7 @@ interface ApiError {
   statusCode: number;
 }
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
+export async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -152,25 +152,6 @@ export async function payUtility(
     body: JSON.stringify(dto),
   });
 }
-export interface BiometricLoginDto {
-  dni: string;
-}
-
-export interface BiometricLoginResponse {
-  message: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
-}
-
-export async function biometricLogin(
-  dto: BiometricLoginDto,
-): Promise<BiometricLoginResponse> {
-  return request<BiometricLoginResponse>("/auth/biometric-login", {
-    method: "POST",
-    body: JSON.stringify(dto),
-  });
+export async function logout(): Promise<{ message: string }> {
+  return request<{ message: string }>("/auth/logout", { method: "POST" });
 }

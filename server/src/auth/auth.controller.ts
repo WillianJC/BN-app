@@ -1,19 +1,26 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { WebAuthnService } from './webauthn.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
-import { BiometricLoginDto } from './dto/biometric-login.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { WebAuthnRegistrationVerifyDto } from './dto/webauthn-registration.dto';
+import { WebAuthnAuthenticationVerifyDto } from './dto/webauthn-authentication.dto';
 import type { JwtPayload } from './dto/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
+    private readonly webAuthnService: WebAuthnService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private get cookieOptions() {
@@ -44,11 +51,17 @@ export class AuthController {
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token } = await this.authService.register(dto);
-
-    res.cookie(this.cookieName, access_token, this.cookieOptions);
-
-    return { message: 'Registration successful' };
+    try {
+      const { access_token } = await this.authService.register(dto);
+      res.cookie(this.cookieName, access_token, this.cookieOptions);
+      return { message: 'Registration successful' };
+    } catch (err) {
+      this.logger.error(
+        'Register failed',
+        err instanceof Error ? err.stack : err,
+      );
+      throw err;
+    }
   }
 
   @Public()
@@ -72,18 +85,52 @@ export class AuthController {
     return user;
   }
 
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie(this.cookieName, {
+      httpOnly: this.cookieOptions.httpOnly,
+      sameSite: this.cookieOptions.sameSite,
+      secure: this.cookieOptions.secure,
+    });
+    return { message: 'Logout successful' };
+  }
+
+  @Post('webauthn/register/options')
+  async passkeyRegisterOptions(@CurrentUser('sub') userId: string) {
+    return this.webAuthnService.generateRegistrationOptions(userId);
+  }
+
+  @Post('webauthn/register/verify')
+  async passkeyRegisterVerify(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: WebAuthnRegistrationVerifyDto,
+  ) {
+    return this.webAuthnService.verifyRegistration(userId, dto.response);
+  }
+
   @Public()
-  @Post('biometric-login')
-  async biometricLogin(
-    @Body() dto: BiometricLoginDto,
+  @Post('webauthn/login/options')
+  async passkeyLoginOptions() {
+    return this.webAuthnService.generateAuthenticationOptions();
+  }
+
+  @Public()
+  @Post('webauthn/login/verify')
+  async passkeyLoginVerify(
+    @Body() dto: WebAuthnAuthenticationVerifyDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token, user } = await this.authService.biometricLogin(
-      dto.dni,
-    );
+    const user = await this.webAuthnService.verifyAuthentication(dto.response);
 
-    res.cookie(this.cookieName, access_token, this.cookieOptions);
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    const token = this.jwtService.sign(payload);
 
-    return { message: 'Biometric login successful', user };
+    res.cookie(this.cookieName, token, this.cookieOptions);
+
+    return { message: 'Login successful', user };
   }
 }

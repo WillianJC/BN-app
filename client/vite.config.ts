@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
   return {
     envDir,
     server: {
+      host: true,
       port: parseInt(env.CLIENT_PORT || "5173"),
       proxy: {
         "/auth": {

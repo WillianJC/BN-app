@@ -1,5 +1,6 @@
 import "./styles.css";
 import * as api from "./api";
+import * as passkey from "./passkey";
 
 type Profile = "normal" | "vision" | "notext";
 type ScreenId =
@@ -174,9 +175,14 @@ root.innerHTML = `
 								<h3>Manuel Torres</h3>
 							</div>
 						</div>
-						<button type="button" class="mini-action app-btn-secondary" data-action="speak-home" aria-label="Escuchar estado de la cuenta">
-							<i class="fa-solid fa-volume-high"></i>
-						</button>
+						<div class="header-actions">
+							<button type="button" class="mini-action app-btn-secondary" data-action="speak-home" aria-label="Escuchar estado de la cuenta">
+								<i class="fa-solid fa-volume-high"></i>
+							</button>
+							<button type="button" class="mini-action logout-action app-btn-secondary" data-action="logout" aria-label="Cerrar sesión">
+								<i class="fa-solid fa-right-from-bracket"></i>
+							</button>
+						</div>
 					</div>
 
 					<div class="balance-card app-card">
@@ -611,6 +617,24 @@ async function goHome(): Promise<void> {
   setScreen("screen-home");
 }
 
+async function handleLogout(): Promise<void> {
+  try {
+    await api.logout();
+  } catch {
+    // proceed with local logout even if server call fails
+  }
+  state.userId = "";
+  state.userName = "Manuel Torres";
+  state.userEmail = "";
+  state.balance = 0;
+  state.isRegisterMode = false;
+  updateAuthUI();
+  updateBalanceUI();
+  setScreen("screen-auth");
+  showToast("Sesión cerrada", "Ha cerrado sesión correctamente.", "info");
+  speakSystem("Ha cerrado sesión. Vuelva pronto.");
+}
+
 function updateAuthUI(): void {
   const loginForm = root.querySelector<HTMLElement>(".login-form");
   const nameInput = root.querySelector<HTMLElement>("#login-name");
@@ -637,258 +661,67 @@ function toggleAuthMode(): void {
   updateAuthUI();
 }
 
-async function handleFaceRecognitionOnly(): Promise<void> {
-  const faceRing = root.querySelector<HTMLElement>(".face-ring");
-  let stream: MediaStream | null = null;
+// ── HANDLERS ─────────────────────────────────────────────────────────────
 
-  // Paso 1: activar cámara e inyectarla en .face-ring
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+/** Punto de entrada del botón "ENTRAR CON MI ROSTRO".
+ *  Orden: WebAuthn passkey → formulario email/password como fallback */
+async function handleBiometricLogin(): Promise<void> {
+  // Si está en modo registro, va directo al formulario
+  if (state.isRegisterMode) {
+    await handleAuth();
+    return;
+  }
 
-    // Limpia video previo si el usuario repite el flujo
-    faceRing?.querySelector("video")?.remove();
+  const supported = await passkey.isPasskeySupported();
 
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.srcObject = stream;
-    Object.assign(video.style, {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      borderRadius: "50%",
-      position: "absolute",
-      top: "0",
-      left: "0",
-      zIndex: "1",
-    });
+  if (supported) {
+    showToast("Verificando", "Use su huella o rostro para ingresar...", "info");
+    speakSystem("Por favor use su huella dactilar o reconocimiento facial para ingresar.");
 
-    const scannerLine = faceRing?.querySelector(".scanner-line");
-    if (scannerLine) {
-      scannerLine.insertAdjacentElement("afterend", video);
-    } else {
-      faceRing?.appendChild(video);
+    try {
+      const user = await passkey.authenticateWithPasskey();
+
+      state.userId = user.id;
+      state.userName = user.name;
+      state.userEmail = user.email;
+
+      const avatar = root.querySelector<HTMLElement>(".avatar");
+      if (avatar) avatar.textContent = user.name.charAt(0).toUpperCase();
+      const userNameEl = root.querySelector<HTMLElement>(".user-chip h3");
+      if (userNameEl) userNameEl.textContent = user.name;
+
+      showToast("Identidad verificada", "Bienvenido a InclusiApp.", "success");
+      speakSystem("Identidad verificada correctamente. Bienvenido.");
+      await fetchAndUpdateBalance();
+      setScreen("screen-home");
+      return;
+    } catch (err) {
+      const error = err as { message?: string };
+      showToast(
+        "Verificación fallida",
+        error.message ?? "No se pudo verificar la identidad.",
+        "warning",
+      );
+      speakSystem("No se pudo verificar su identidad. Intente con correo y contraseña.");
     }
+  }
 
-    speakSystem("Escaneando rostro. Por favor mire a la cámara.");
-    showToast("Escaneando", "Mantenga su rostro frente a la cámara.", "info");
-  } catch {
-    // Cámara no disponible — continúa en modo simulado sin cortar el flujo
+  // Passkeys no soportado o falló → mostrar formulario email/password
+  if (!supported) {
     showToast(
-      "Modo simulado",
-      "Cámara no disponible. Verificando identidad.",
+      "Ingreso manual",
+      "Ingrese con su correo y contraseña.",
       "info",
     );
-  }
-
-  // Paso 2: esperar 3 segundos de escaneo visual
-  await new Promise<void>((resolve) => setTimeout(resolve, 3000));
-
-  // Paso 3: detener cámara
-  stream?.getTracks().forEach((track) => track.stop());
-  faceRing?.querySelector("video")?.remove();
-
-  // Paso 4: obtener DNI del input de email (campo reutilizado para la demo)
-  // En producción aquí iría el DNI real del usuario
-  const emailInput = root.querySelector<HTMLInputElement>("#login-email");
-  const dniRaw = emailInput?.value.trim() ?? "";
-  // Extrae solo dígitos por si el usuario escribió el email completo
-  const dni = dniRaw.replace(/\D/g, "").slice(0, 8).padStart(8, "0");
-
-  // Paso 5: llamar al backend
-  try {
-    const result = await api.biometricLogin({ dni });
-
-    // Actualizar estado con datos del usuario devueltos por el backend
-    state.userId = result.user.id;
-    state.userName = result.user.name;
-    state.userEmail = result.user.email;
-
-    const avatar = root.querySelector<HTMLElement>(".avatar");
-    if (avatar) avatar.textContent = result.user.name.charAt(0).toUpperCase();
-    const userNameEl = root.querySelector<HTMLElement>(".user-chip h3");
-    if (userNameEl) userNameEl.textContent = result.user.name;
-
-    showToast("Identidad verificada", "Bienvenido a InclusiApp.", "success");
-    speakSystem("Identidad verificada correctamente. Bienvenido.");
-    await fetchAndUpdateBalance();
-    setScreen("screen-home");
-  } catch (err) {
-    const error = err as { message?: string };
-    showToast(
-      "Verificación fallida",
-      error.message ?? "No se pudo verificar la identidad.",
-      "warning",
+    speakSystem(
+      "No se detectó lector de huella o rostro. Por favor ingrese su correo y contraseña.",
     );
-    speakSystem("No se pudo verificar su identidad. Intente nuevamente.");
   }
-}
-
-// ── HELPERS BIOMÉTRICOS ────────────────────────────────────────────────────
-
-/** Intenta autenticación con huella / Face ID usando WebAuthn.
- *  Devuelve true si el dispositivo lo soporta y el usuario confirma,
- *  false si no está disponible o el usuario cancela. */
-async function tryFingerprintAuth(): Promise<boolean> {
-  if (
-    !window.PublicKeyCredential ||
-    !(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())
-  ) {
-    return false; // dispositivo sin huella/Face ID
-  }
-
-  try {
-    // Usamos una aserción de plataforma sin registro previo (solo verifica
-    // que el dispositivo tiene biometría activa — suficiente para la demo)
-    const challenge = crypto.getRandomValues(new Uint8Array(32));
-
-    await navigator.credentials.get({
-      publicKey: {
-        challenge,
-        timeout: 30000,
-        userVerification: "required",
-        rpId: window.location.hostname,
-        allowCredentials: [], // vacío = cualquier credencial del dispositivo
-      },
-    });
-
-    return true; // usuario verificado con huella/Face ID
-  } catch {
-    return false; // cancelado, expirado o sin credenciales registradas
-  }
-}
-
-/** Muestra la cámara dentro de .face-ring durante segundos.
- *  Devuelve true si la cámara estuvo disponible, false si no. */
-async function tryCameraAuth(seconds = 3): Promise<boolean> {
-  const faceRing = root.querySelector<HTMLElement>(".face-ring");
-  let stream: MediaStream | null = null;
-
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-    faceRing?.querySelector("video")?.remove();
-
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.srcObject = stream;
-    Object.assign(video.style, {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      borderRadius: "50%",
-      position: "absolute",
-      top: "0",
-      left: "0",
-      zIndex: "1",
-    });
-
-    const scannerLine = faceRing?.querySelector(".scanner-line");
-    scannerLine
-      ? scannerLine.insertAdjacentElement("afterend", video)
-      : faceRing?.appendChild(video);
-
-    speakSystem("Escaneando rostro. Por favor mire a la cámara.");
-    showToast("Escaneando", "Mantenga su rostro frente a la cámara.", "info");
-
-    await new Promise<void>((resolve) => setTimeout(resolve, seconds * 1000));
-    return true;
-  } catch {
-    return false; // cámara denegada o no disponible
-  } finally {
-    // Siempre limpia la cámara al terminar, con o sin error
-    stream?.getTracks().forEach((t) => t.stop());
-    faceRing?.querySelector("video")?.remove();
-  }
-}
-
-/** Finaliza la sesión después de verificación biométrica exitosa.
- *  Usa el DNI demo del seed (no requiere intervención del usuario). */
-async function completeBiometricSession(): Promise<void> {
-  const result = await api.biometricLogin({ dni: DEMO_DNI });
-
-  state.userId = result.user.id;
-  state.userName = result.user.name;
-  state.userEmail = result.user.email;
-
-  const avatar = root.querySelector<HTMLElement>(".avatar");
-  if (avatar) avatar.textContent = result.user.name.charAt(0).toUpperCase();
-
-  const userNameEl = root.querySelector<HTMLElement>(".user-chip h3");
-  if (userNameEl) userNameEl.textContent = result.user.name;
-
-  showToast("Identidad verificada", "Bienvenido a InclusiApp.", "success");
-  speakSystem("Identidad verificada correctamente. Bienvenido.");
-  await fetchAndUpdateBalance();
-  setScreen("screen-home");
-}
-
-/** Punto de entrada del botón azul.
- *  Orden: huella → cámara → formulario email/password */
-async function handleBiometricLogin(): Promise<void> {
-  // 1. Intentar huella / Face ID
-  showToast("Verificando", "Intentando reconocimiento biométrico...", "info");
-
-  const fingerprintOk = await tryFingerprintAuth();
-
-  if (fingerprintOk) {
-    showToast(
-      "Huella verificada",
-      "Identidad confirmada con éxito.",
-      "success",
-    );
-    speakSystem("Huella dactilar verificada. Ingresando.");
-    try {
-      await completeBiometricSession();
-    } catch (err) {
-      const error = err as { message?: string };
-      showToast(
-        "Error",
-        error.message ?? "No se pudo completar el ingreso.",
-        "warning",
-      );
-    }
-    return;
-  }
-
-  // 2. Huella no disponible o cancelada → intentar cámara
-  showToast("Activando cámara", "Iniciando reconocimiento facial...", "info");
-
-  const cameraOk = await tryCameraAuth(3);
-
-  if (cameraOk) {
-    try {
-      await completeBiometricSession();
-    } catch (err) {
-      const error = err as { message?: string };
-      showToast(
-        "Error",
-        error.message ?? "No se pudo completar el ingreso.",
-        "warning",
-      );
-    }
-    return;
-  }
-
-  // 3. Ni huella ni cámara → caer al formulario email + password
-  showToast(
-    "Biometría no disponible",
-    "Ingrese con su correo y contraseña.",
-    "warning",
-  );
-  speakSystem(
-    "No se detectó biometría. Por favor ingrese su correo y contraseña.",
-  );
 
   state.isRegisterMode = false;
   state.isAuthFormVisible = true;
   updateAuthUI();
 }
-
-// ──────────────────────────────────────────────────────────────────────────
 
 async function handleAuth(): Promise<void> {
   const emailInput = root.querySelector<HTMLInputElement>("#login-email");
@@ -923,15 +756,16 @@ async function handleAuth(): Promise<void> {
   }
 
   try {
-    if (state.isRegisterMode) {
+    const isRegistering = state.isRegisterMode;
+
+    if (isRegistering) {
       await api.register({ name: name!, email, password });
     }
     await api.login({ email, password });
     const me = await api.getMe();
     state.userEmail = email;
     state.userId = me.sub;
-    state.userName = me.email ?? email;
-    const namePart = state.userName.split("@")[0];
+    const namePart = (me.email ?? email).split("@")[0];
     const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
     state.userName = displayName;
 
@@ -945,6 +779,30 @@ async function handleAuth(): Promise<void> {
     showToast("Ingreso correcto", "Bienvenido a InclusiApp.", "success");
     await fetchAndUpdateBalance();
     setScreen("screen-home");
+
+    // Ofrecer registrar passkey después del registro exitoso
+    if (isRegistering) {
+      try {
+        const supported = await passkey.isPasskeySupported();
+        if (supported) {
+          showToast(
+            "Registrando passkey",
+            "Configure su huella o rostro para ingresos futuros.",
+            "info",
+          );
+          await passkey.startPasskeyRegistration();
+          showToast(
+            "Passkey registrada",
+            "Ya puede ingresar con su huella o rostro.",
+            "success",
+          );
+          speakSystem("Se ha registrado su huella o rostro. Podrá ingresar sin contraseña la próxima vez.");
+        }
+      } catch {
+        // no crítico: el usuario igual ya inició sesión
+        speakSystem("No se pudo registrar el acceso biométrico. Puede intentarlo más tarde desde su perfil.");
+      }
+    }
   } catch (err) {
     const error = err as { message?: string };
     showToast(
@@ -1149,6 +1007,11 @@ root.addEventListener("click", (event) => {
 
   if (action === "sos") {
     triggerSOS();
+    return;
+  }
+
+  if (action === "logout") {
+    handleLogout();
     return;
   }
 
