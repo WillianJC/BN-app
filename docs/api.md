@@ -19,6 +19,24 @@ Inicia sesión. Setea cookie `token`.
 ### `GET /auth/me`
 Devuelve el payload del JWT del usuario autenticado (requiere cookie `token` o header `Authorization: Bearer <token>`).
 
+### Passkeys / WebAuthn (Face ID, Touch ID, huella Android)
+
+Los 4 endpoints usan el estandar W3C WebAuthn. El desafio se entrega en una cookie firmada httpOnly (`wa_challenge`, path `/auth/webauthn`) y se valida con HMAC-SHA256 sobre `JWT_SECRET`. TTL configurable con `WEBAUTHN_CHALLENGE_TTL_MS` (default 5 min).
+
+**Importante para mobile**: en produccion `WEBAUTHN_RP_ORIGIN` debe ser `https://...`. Safari iOS y Chrome Android rechazan el prompt biometric sobre HTTP (excepto `localhost`).
+
+#### `POST /auth/webauthn/register/options` (autenticado)
+Devuelve `PublicKeyCredentialCreationOptionsJSON`. Setea cookie `wa_challenge` con `{ op: 'register', userId, challenge, ts }`.
+
+#### `POST /auth/webauthn/register/verify` (autenticado)
+Body: `{ response: RegistrationResponseJSON }`. Verifica firma, persiste la credencial, limpia cookie.
+
+#### `POST /auth/webauthn/login/options` (publico)
+Devuelve `PublicKeyCredentialRequestOptionsJSON`. Setea cookie `wa_challenge` con `{ op: 'auth', challenge, ts }`.
+
+#### `POST /auth/webauthn/login/verify` (publico)
+Body: `{ response: AuthenticationResponseJSON }`. Verifica firma, setea cookie `token`, limpia `wa_challenge`. Devuelve `{ message, user }`.
+
 ---
 
 ## Finances (`/finances`)

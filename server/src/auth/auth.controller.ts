@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Logger, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { WebAuthnService } from './webauthn.service';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -45,6 +45,11 @@ export class AuthController {
     return this.configService.get<string>('JWT_COOKIE_NAME', 'token');
   }
 
+  private readCookie(req: Request, name: string): string | undefined {
+    const cookies = (req.cookies ?? {}) as Record<string, string | undefined>;
+    return cookies[name];
+  }
+
   @Public()
   @Post('register')
   async register(
@@ -85,6 +90,32 @@ export class AuthController {
     return user;
   }
 
+  @Public()
+  @Get('session')
+  session(@Req() req: Request) {
+    const cookies = (req.cookies ?? {}) as Record<string, string | undefined>;
+    const token = cookies[this.cookieName];
+    if (!token) {
+      return { authenticated: false, user: null };
+    }
+    try {
+      const payload = this.jwtService.verify<JwtPayload>(token);
+      if (!payload.sub) {
+        return { authenticated: false, user: null };
+      }
+      return {
+        authenticated: true,
+        user: {
+          sub: payload.sub,
+          email: payload.email ?? null,
+          role: payload.role ?? null,
+        },
+      };
+    } catch {
+      return { authenticated: false, user: null };
+    }
+  }
+
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(this.cookieName, {
@@ -96,31 +127,81 @@ export class AuthController {
   }
 
   @Post('webauthn/register/options')
-  async passkeyRegisterOptions(@CurrentUser('sub') userId: string) {
-    return this.webAuthnService.generateRegistrationOptions(userId);
+  async passkeyRegisterOptions(
+    @CurrentUser('sub') userId: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const options =
+      await this.webAuthnService.generateRegistrationOptions(userId);
+    const signed = this.webAuthnService.signChallenge({
+      op: 'register',
+      userId,
+      challenge: options.challenge,
+      ts: Date.now(),
+    });
+    res.cookie(
+      this.webAuthnService.getCookieName(),
+      signed,
+      this.webAuthnService.getCookieOptions(),
+    );
+    return options;
   }
 
   @Post('webauthn/register/verify')
   async passkeyRegisterVerify(
     @CurrentUser('sub') userId: string,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
     @Body() dto: WebAuthnRegistrationVerifyDto,
   ) {
-    return this.webAuthnService.verifyRegistration(userId, dto.response);
+    const rawCookie = this.readCookie(
+      req,
+      this.webAuthnService.getCookieName(),
+    );
+    const result = await this.webAuthnService.verifyRegistration(
+      userId,
+      rawCookie,
+      dto.response,
+    );
+    res.clearCookie(
+      this.webAuthnService.getCookieName(),
+      this.webAuthnService.getCookieOptions(),
+    );
+    return result;
   }
 
   @Public()
   @Post('webauthn/login/options')
-  async passkeyLoginOptions() {
-    return this.webAuthnService.generateAuthenticationOptions();
+  async passkeyLoginOptions(@Res({ passthrough: true }) res: Response) {
+    const options = await this.webAuthnService.generateAuthenticationOptions();
+    const signed = this.webAuthnService.signChallenge({
+      op: 'auth',
+      challenge: options.challenge,
+      ts: Date.now(),
+    });
+    res.cookie(
+      this.webAuthnService.getCookieName(),
+      signed,
+      this.webAuthnService.getCookieOptions(),
+    );
+    return options;
   }
 
   @Public()
   @Post('webauthn/login/verify')
   async passkeyLoginVerify(
-    @Body() dto: WebAuthnAuthenticationVerifyDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
+    @Body() dto: WebAuthnAuthenticationVerifyDto,
   ) {
-    const user = await this.webAuthnService.verifyAuthentication(dto.response);
+    const rawCookie = this.readCookie(
+      req,
+      this.webAuthnService.getCookieName(),
+    );
+    const user = await this.webAuthnService.verifyAuthentication(
+      rawCookie,
+      dto.response,
+    );
 
     const payload: JwtPayload = {
       sub: user.id,
@@ -130,6 +211,10 @@ export class AuthController {
     const token = this.jwtService.sign(payload);
 
     res.cookie(this.cookieName, token, this.cookieOptions);
+    res.clearCookie(
+      this.webAuthnService.getCookieName(),
+      this.webAuthnService.getCookieOptions(),
+    );
 
     return { message: 'Login successful', user };
   }

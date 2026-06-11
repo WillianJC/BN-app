@@ -5,15 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite",
-    "build": "bunx --bun vite build",
-    "preview": "bunx --bun vite preview"
-  },
-  "devDependencies": {
-    "typescript": "^5",
-    "vite": "^6"
+    "build": "bunx --bun tsc -b && bunx --bun vite build",
+    "preview": "bunx --bun vite preview",
+    "lint": "bunx --bun eslint \"src/**/*.{ts,tsx}\" --fix",
+    "typecheck": "bunx --bun tsc -b --noEmit"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.3.0",
-    "@types/node": "^25.9.2"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5",
+    "vite": "^6"
   }
 }

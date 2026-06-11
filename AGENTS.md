@@ -18,8 +18,14 @@
 - Use `cookie-parser` via `app.use()` for cookies
 - Prefer TypeORM or NestJS-native patterns over Bun built-ins (Bun.serve, Bun.write, etc.)
 
+## Frontend development
+- When the user asks about frontend UI, components, pages, styling, or layout, load the `frontend-design` skill for production-grade interface code
+- When the user asks about UI/UX design, visual polish, color systems, typography, animation, or responsive design, load the `ui-ux-pro-max` skill
+- Use `frontend-design` for building/implementing components; use `ui-ux-pro-max` for design decisions and refinements
+
 ## Code style
 - TypeScript strict mode
-- No `any` unless strictly necessary
+- Always use strong typing; fall back to `unknown` (with proper narrowing) instead of `any` — `any` is forbidden
+- No `any` under any circumstance (use `unknown` + type guards or define a proper type)
 - Prefer `async/await` over callbacks
 - ESM modules only (`import`/`export`)

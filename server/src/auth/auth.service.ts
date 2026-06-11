@@ -81,32 +81,4 @@ export class AuthService {
 
     return { access_token: token };
   }
-
-  async biometricLogin(dni: string) {
-    const maskedDni = `***${dni.slice(-4)}`;
-    const user = await this.userRepo.findOne({ where: { dni } });
-    if (!user) {
-      this.logger.warn(`biometric_login: failed dni=${maskedDni}`);
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
-    const token = this.jwtService.sign(payload);
-
-    this.logger.log(`biometric_login: ok dni=${maskedDni} user=${user.email}`);
-
-    return {
-      access_token: token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    };
-  }
 }
