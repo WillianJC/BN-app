@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { ApiError } from "../../../utils/api";
 import { getDisplayNameFromEmail } from "../../../utils/formatters";
 import { authApi } from "../api";
 import type { AuthState, AuthUser, LoginDto, RegisterDto } from "../types";
@@ -30,20 +29,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const me = await authApi.me();
-      const name = me.email ? getDisplayNameFromEmail(me.email) : "Usuario";
-      setState({
-        status: "authenticated",
-        user: { id: me.sub, email: me.email ?? "", name },
-      });
-    } catch (err: unknown) {
-      if (
-        err instanceof ApiError &&
-        (err.statusCode === 401 || err.statusCode === 403)
-      ) {
+      const session = await authApi.session();
+      if (!session.authenticated || !session.user) {
         setState({ status: "unauthenticated", user: null });
         return;
       }
+      const u = session.user;
+      const name = u.email ? getDisplayNameFromEmail(u.email) : "Usuario";
+      setState({
+        status: "authenticated",
+        user: { id: u.sub, email: u.email ?? "", name },
+      });
+    } catch {
       setState({ status: "unauthenticated", user: null });
     }
   }, []);

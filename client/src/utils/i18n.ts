@@ -4,6 +4,8 @@ export type TranslationKey =
   | "auth-title"
   | "auth-desc"
   | "auth-btn"
+  | "auth-btn-ios"
+  | "auth-btn-android"
   | "home-balance-label"
   | "menu-saldo"
   | "menu-cobrar"
@@ -55,6 +57,8 @@ export const translations: Record<Profile, Record<TranslationKey, string>> = {
     "auth-title": "Bienvenido a InclusiApp",
     "auth-desc": "Acerque su rostro para ingresar de forma segura.",
     "auth-btn": "ENTRAR CON MI ROSTRO",
+    "auth-btn-ios": "ENTRAR CON FACE ID",
+    "auth-btn-android": "ENTRAR CON MI HUELLA",
     "home-balance-label": "MI DINERO DISPONIBLE",
     "menu-saldo": "VER MI DINERO",
     "menu-cobrar": "COBRAR BONO",
@@ -106,6 +110,8 @@ export const translations: Record<Profile, Record<TranslationKey, string>> = {
     "auth-title": "Bienvenido a InclusiApp",
     "auth-desc": "Acerque su rostro para ingresar de forma segura.",
     "auth-btn": "ENTRAR CON MI ROSTRO",
+    "auth-btn-ios": "ENTRAR CON FACE ID",
+    "auth-btn-android": "ENTRAR CON MI HUELLA",
     "home-balance-label": "MI DINERO DISPONIBLE",
     "menu-saldo": "VER MI DINERO",
     "menu-cobrar": "COBRAR BONO",
@@ -157,6 +163,8 @@ export const translations: Record<Profile, Record<TranslationKey, string>> = {
     "auth-title": "¡HOLA! BIENVENIDO",
     "auth-desc": "Toque el botón grande azul de abajo.",
     "auth-btn": "PRESIONE AQUÍ PARA ENTRAR",
+    "auth-btn-ios": "ENTRAR CON ROSTRO",
+    "auth-btn-android": "ENTRAR CON HUELLA",
     "home-balance-label": "MI BILLETERA TIENE",
     "menu-saldo": "VER MI SALDO",
     "menu-cobrar": "SACAR EFECTIVO",

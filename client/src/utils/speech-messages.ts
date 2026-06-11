@@ -8,6 +8,9 @@ export type SpeechMessageKey =
   | "auth-name-required"
   | "auth-biometric-register"
   | "auth-biometric-fail"
+  | "auth-biometric-prompt-ios"
+  | "auth-biometric-prompt-android"
+  | "auth-biometric-https-error"
   | "home"
   | "saldo"
   | "qr"
@@ -44,6 +47,12 @@ export const speechMessages: Record<SpeechMessageKey, string> = {
     "Se ha registrado su huella o rostro. Podrá ingresar sin contraseña la próxima vez.",
   "auth-biometric-fail":
     "No se pudo registrar el acceso biométrico. Puede intentarlo más tarde desde su perfil.",
+  "auth-biometric-prompt-ios":
+    "Use Face ID para ingresar de forma segura.",
+  "auth-biometric-prompt-android":
+    "Use su huella dactilar para ingresar de forma segura.",
+  "auth-biometric-https-error":
+    "Conexion insegura. La biometria solo funciona en conexiones seguras HTTPS.",
   home: "",
   saldo: "",
   qr: "Muestre el código al cajero para retirar sus billetes.",

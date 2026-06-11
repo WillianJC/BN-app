@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import { usePasskey } from "../passkey/usePasskey";
+import { usePasskey, explainWebAuthnError } from "../passkey/usePasskey";
+import type { PasskeyPlatform } from "../passkey/types";
 import { useToast } from "../../shared/context/ToastContext";
 import { useSpeech } from "../../shared/context/SpeechContext";
 import { useProfile } from "../../shared/context/ProfileContext";
@@ -11,13 +12,30 @@ import { APP_ROUTES } from "../../utils/constants";
 import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
 import type { LoginDto, RegisterDto } from "./types";
+import type { TranslationKey } from "../../utils/i18n";
 
 type Mode = "biometric" | "form";
+
+function biometricIcon(platform: PasskeyPlatform): string {
+  if (platform === "ios") return "fa-face-smile";
+  return "fa-fingerprint";
+}
+
+function biometricBtnKey(platform: PasskeyPlatform): TranslationKey {
+  if (platform === "ios") return "auth-btn-ios";
+  if (platform === "android") return "auth-btn-android";
+  return "auth-btn";
+}
+
+function biometricSpeechPrompt(platform: PasskeyPlatform): string {
+  if (platform === "ios") return speechMessages["auth-biometric-prompt-ios"];
+  return speechMessages["auth-biometric-prompt-android"];
+}
 
 export function AuthPage() {
   const navigate = useNavigate();
   const { login, register, setUser } = useAuth();
-  const { authenticate: passkeyAuth, register: registerPasskey, isSupported } = usePasskey();
+  const { authenticate: passkeyAuth, register: registerPasskey, isSupported, platform } = usePasskey();
   const { showToast } = useToast();
   const { speak } = useSpeech();
   const { profile } = useProfile();
@@ -25,6 +43,11 @@ export function AuthPage() {
   const [mode, setMode] = useState<Mode>("biometric");
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const biometricBtnLabel = useMemo(
+    () => translate(profile, biometricBtnKey(platform)),
+    [profile, platform],
+  );
 
   useEffect(() => {
     speak(speechMessages.auth);
@@ -49,10 +72,12 @@ export function AuthPage() {
     }
     showToast(
       "Verificando",
-      "Use su huella o rostro para ingresar...",
+      platform === "ios"
+        ? "Use Face ID para ingresar..."
+        : "Use su huella o rostro para ingresar...",
       "info",
     );
-    speak(speechMessages["auth-prompt"]);
+    speak(biometricSpeechPrompt(platform));
     try {
       const user = await passkeyAuth();
       setUser({
@@ -64,13 +89,20 @@ export function AuthPage() {
       speak(speechMessages["auth-success"]);
       navigate(APP_ROUTES.home, { replace: true });
     } catch (err) {
-      const error = err as { message?: string };
+      const error = err as { message?: string; name?: string };
+      const message = error.name === "SecurityError"
+        ? speechMessages["auth-biometric-https-error"]
+        : (error.message ?? "No se pudo verificar la identidad.");
       showToast(
         "Verificación fallida",
-        error.message ?? "No se pudo verificar la identidad.",
+        message,
         "warning",
       );
-      speak(speechMessages["auth-fail"]);
+      if (error.name === "SecurityError") {
+        speak(speechMessages["auth-biometric-https-error"]);
+      } else {
+        speak(speechMessages["auth-fail"]);
+      }
       setMode("form");
     }
   };
@@ -105,17 +137,21 @@ export function AuthPage() {
         try {
           showToast(
             "Registrando passkey",
-            "Configure su huella o rostro para ingresos futuros.",
+            platform === "ios"
+              ? "Configure Face ID para ingresos futuros."
+              : "Configure su huella o rostro para ingresos futuros.",
             "info",
           );
           await registerPasskey();
           showToast(
             "Passkey registrada",
-            "Ya puede ingresar con su huella o rostro.",
+            "Ya puede ingresar con su biometria.",
             "success",
           );
           speak(speechMessages["auth-biometric-register"]);
-        } catch {
+        } catch (err) {
+          const message = explainWebAuthnError(err);
+          showToast("Passkey no registrada", message, "info");
           speak(speechMessages["auth-biometric-fail"]);
         }
       }
@@ -141,6 +177,8 @@ export function AuthPage() {
     speak(speechMessages["auth-voice-prompt"]);
   };
 
+  const iconClass = biometricIcon(platform);
+
   return (
     <section id="screen-auth" className="phone-screen app-bg">
       <div className="screen-hero">
@@ -164,6 +202,7 @@ export function AuthPage() {
           onSwitchToRegister={handleSwitchMode}
           onSwitchToBiometric={() => setMode("biometric")}
           submitting={submitting}
+          platform={platform}
         />
       )}
 
@@ -176,33 +215,50 @@ export function AuthPage() {
       )}
 
       {mode === "biometric" && (
-        <div className="screen-actions">
-          <button
-            type="button"
-            className="primary-action app-btn-accent"
-            onClick={handleBiometricLogin}
-            disabled={submitting}
-          >
-            <i className="fa-solid fa-fingerprint" />
-            <span>{translate(profile, "auth-btn")}</span>
-          </button>
-          <button
-            type="button"
-            className="secondary-action app-btn-secondary"
-            onClick={handleSwitchMode}
-          >
-            <i className="fa-solid fa-user-plus" />
-            <span>{translate(profile, "create-account")}</span>
-          </button>
-          <button
-            type="button"
-            className="secondary-action app-btn-secondary"
-            onClick={handleVoiceHelp}
-          >
-            <i className="fa-solid fa-volume-high" />
-            <span>{translate(profile, "auth-voice-help")}</span>
-          </button>
-        </div>
+        <>
+          <input
+            type="text"
+            name="webauthn"
+            autoComplete="webauthn"
+            tabIndex={-1}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: "-9999px",
+              top: "auto",
+              width: "1px",
+              height: "1px",
+              overflow: "hidden",
+            }}
+          />
+          <div className="screen-actions">
+            <button
+              type="button"
+              className="primary-action app-btn-accent"
+              onClick={handleBiometricLogin}
+              disabled={submitting}
+            >
+              <i className={`fa-solid ${iconClass}`} />
+              <span>{biometricBtnLabel}</span>
+            </button>
+            <button
+              type="button"
+              className="secondary-action app-btn-secondary"
+              onClick={handleSwitchMode}
+            >
+              <i className="fa-solid fa-user-plus" />
+              <span>{translate(profile, "create-account")}</span>
+            </button>
+            <button
+              type="button"
+              className="secondary-action app-btn-secondary"
+              onClick={handleVoiceHelp}
+            >
+              <i className="fa-solid fa-volume-high" />
+              <span>{translate(profile, "auth-voice-help")}</span>
+            </button>
+          </div>
+        </>
       )}
     </section>
   );

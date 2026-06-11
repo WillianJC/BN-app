@@ -1,6 +1,7 @@
+export type PasskeyPlatform = "ios" | "android" | "desktop";
+
 export interface PasskeyOptionsResponse {
   challenge: string;
-  _challengeKey?: string;
   [key: string]: unknown;
 }
 

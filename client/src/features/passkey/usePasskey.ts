@@ -1,10 +1,43 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { ApiError } from "../../utils/api";
 import { isPasskeySupported, passkeyApi } from "./api";
-import type { PasskeyUser } from "./types";
+import type { PasskeyPlatform, PasskeyUser } from "./types";
+
+function detectPlatform(): PasskeyPlatform {
+  if (typeof navigator === "undefined") return "desktop";
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/.test(ua)) return "ios";
+  if (/Android/.test(ua)) return "android";
+  return "desktop";
+}
+
+export function explainWebAuthnError(err: unknown): string {
+  if (err instanceof ApiError) return err.message;
+  if (err instanceof Error) {
+    switch (err.name) {
+      case "NotAllowedError":
+        return "No se autorizo el acceso biometric";
+      case "SecurityError":
+        return "Conexion insegura. Se requiere HTTPS para usar biometria en este dispositivo.";
+      case "NotSupportedError":
+        return "Este dispositivo no soporta passkey";
+      case "InvalidStateError":
+        return "Esta passkey ya esta registrada en el dispositivo";
+      case "AbortError":
+        return "Operacion cancelada por el usuario";
+      case "TimeoutError":
+        return "La verificacion expiro. Intente de nuevo.";
+      default:
+        return err.message || "Error de autenticacion biometric";
+    }
+  }
+  return "Error de autenticacion biometric";
+}
 
 export function usePasskey() {
+  const platform = useMemo<PasskeyPlatform>(() => detectPlatform(), []);
+
   const isSupported = useCallback(() => isPasskeySupported(), []);
 
   const register = useCallback(async (): Promise<void> => {
@@ -28,17 +61,11 @@ export function usePasskey() {
     }
     const authenticationResponse = await startAuthentication({
       optionsJSON: options as unknown as Parameters<typeof startAuthentication>[0]["optionsJSON"],
+      useBrowserAutofill: true,
     });
-    const challengeKey = options._challengeKey;
-    const payload: Record<string, unknown> = {
-      ...(authenticationResponse as unknown as Record<string, unknown>),
-    };
-    if (challengeKey) {
-      payload._challengeKey = challengeKey;
-    }
-    const result = await passkeyApi.verifyLogin(payload);
+    const result = await passkeyApi.verifyLogin(authenticationResponse);
     return result.user;
   }, []);
 
-  return { isSupported, register, authenticate };
+  return { isSupported, register, authenticate, platform };
 }

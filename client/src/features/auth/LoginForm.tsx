@@ -5,12 +5,14 @@ import { translate } from "../../utils/i18n";
 import { validateLoginForm, type LoginFormErrors } from "../../utils/validation";
 import { speechMessages } from "../../utils/speech-messages";
 import type { LoginDto } from "./types";
+import type { PasskeyPlatform } from "../passkey/types";
 
 interface LoginFormProps {
   onSubmit: (dto: LoginDto) => Promise<void> | void;
   onSwitchToRegister: () => void;
   onSwitchToBiometric: () => void;
   submitting: boolean;
+  platform: PasskeyPlatform;
 }
 
 export function LoginForm({
@@ -18,6 +20,7 @@ export function LoginForm({
   onSwitchToRegister,
   onSwitchToBiometric,
   submitting,
+  platform,
 }: LoginFormProps) {
   const { profile } = useProfile();
   const { speak } = useSpeech();
@@ -79,7 +82,7 @@ export function LoginForm({
           className="secondary-action app-btn-secondary"
           onClick={onSwitchToBiometric}
         >
-          <i className="fa-solid fa-fingerprint" />
+          <i className={`fa-solid ${platform === "ios" ? "fa-face-smile" : "fa-fingerprint"}`} />
           <span>{translate(profile, "auth-btn")}</span>
         </button>
         <button

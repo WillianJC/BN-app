@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useAuth } from "../../auth/context/AuthContext";
 import { financesApi, type WalletResponse } from "../api";
 
 interface WalletContextValue {
@@ -25,8 +26,9 @@ interface WalletProviderProps {
 }
 
 export function WalletProvider({ children, autoLoad = true }: WalletProviderProps) {
+  const { status } = useAuth();
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(autoLoad);
+  const [loading, setLoading] = useState<boolean>(autoLoad && status === "authenticated");
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -38,6 +40,7 @@ export function WalletProvider({ children, autoLoad = true }: WalletProviderProp
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al obtener saldo";
       setError(message);
+      setWallet(null);
     } finally {
       setLoading(false);
     }
@@ -50,10 +53,15 @@ export function WalletProvider({ children, autoLoad = true }: WalletProviderProp
   }, []);
 
   useEffect(() => {
-    if (autoLoad) {
-      void refresh();
+    if (!autoLoad) return;
+    if (status !== "authenticated") {
+      setWallet(null);
+      setError(null);
+      setLoading(false);
+      return;
     }
-  }, [autoLoad, refresh]);
+    void refresh();
+  }, [autoLoad, status, refresh]);
 
   const value = useMemo<WalletContextValue>(
     () => ({ wallet, loading, error, refresh, setBalance }),
