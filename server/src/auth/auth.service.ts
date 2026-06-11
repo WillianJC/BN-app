@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,13 +27,28 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS', '10'));
+    const saltRounds = parseInt(
+      this.configService.get<string>('BCRYPT_SALT_ROUNDS', '10'),
+    );
     const hashed = await bcrypt.hash(dto.password, saltRounds);
-    const defaultRole = this.configService.get<string>('DEFAULT_USER_ROLE', 'user');
-    const user = this.userRepo.create({ name: dto.name, email: dto.email, password: hashed, role: defaultRole });
+    const defaultRole = this.configService.get<string>(
+      'DEFAULT_USER_ROLE',
+      'user',
+    );
+    const user = this.userRepo.create({
+      name: dto.name,
+      email: dto.email,
+      password: hashed,
+      role: defaultRole,
+      dni: dto.dni ?? null,
+    });
     await this.userRepo.save(user);
 
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const token = this.jwtService.sign(payload);
 
     return { access_token: token };
@@ -50,9 +69,37 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const token = this.jwtService.sign(payload);
 
     return { access_token: token };
+  }
+
+  async biometricLogin(dni: string) {
+    const user = await this.userRepo.findOne({ where: { dni } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    const token = this.jwtService.sign(payload);
+
+    return {
+      access_token: token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 }

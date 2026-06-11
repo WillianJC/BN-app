@@ -40,7 +40,9 @@ export class FinancesService {
   }
 
   async getTransactions(userId: string, page = 1, limit?: number) {
-    const defaultLimit = parseInt(this.configService.get<string>('DEFAULT_PAGE_SIZE', '20'));
+    const defaultLimit = parseInt(
+      this.configService.get<string>('DEFAULT_PAGE_SIZE', '20'),
+    );
     limit = limit ?? defaultLimit;
     const wallet = await this.getOrCreateWallet(userId);
     const [items, total] = await this.transactionRepo.findAndCount({
@@ -147,7 +149,9 @@ export class FinancesService {
   }
 
   async collectPension(userId: string) {
-    const pensionAmount = parseInt(this.configService.get<string>('PENSION_AMOUNT', '1200'));
+    const pensionAmount = parseInt(
+      this.configService.get<string>('PENSION_AMOUNT', '1200'),
+    );
 
     return this.dataSource.transaction(async (em) => {
       const wallet = await em.findOne(Wallet, {
@@ -178,7 +182,9 @@ export class FinancesService {
   }
 
   async collectBonus(userId: string) {
-    const bonusAmount = parseInt(this.configService.get<string>('BONUS_AMOUNT', '500'));
+    const bonusAmount = parseInt(
+      this.configService.get<string>('BONUS_AMOUNT', '500'),
+    );
 
     return this.dataSource.transaction(async (em) => {
       const wallet = await em.findOne(Wallet, {

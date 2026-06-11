@@ -1,4 +1,11 @@
-import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -13,4 +20,11 @@ export class RegisterDto {
   @MinLength(6)
   @MaxLength(64)
   password!: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  @MaxLength(8)
+  @Matches(/^\d{8}$/, { message: 'DNI must be 8 digits' })
+  dni?: string;
 }

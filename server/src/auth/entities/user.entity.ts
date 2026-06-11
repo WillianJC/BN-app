@@ -17,6 +17,9 @@ export class User {
   @Column({ unique: true, length: 255 })
   email!: string;
 
+  @Column({ type: 'varchar', length: 8, unique: true, nullable: true })
+  dni!: string | null;
+
   @Column({ length: 255, select: false })
   password!: string;
 

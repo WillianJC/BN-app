@@ -11,6 +11,8 @@ type ScreenId =
   | "screen-help";
 type ToastKind = "success" | "warning" | "info";
 
+const DEMO_DNI = "12345678";
+
 const translations: Record<Profile, Record<string, string>> = {
   normal: {
     "auth-title": "Bienvenido a InclusiApp",
@@ -377,6 +379,7 @@ const state = {
   balance: 0,
   userId: "",
   isRegisterMode: false,
+  isAuthFormVisible: false,
 };
 
 const elements = {
@@ -614,12 +617,14 @@ function updateAuthUI(): void {
   const submitBtn = root.querySelector<HTMLElement>("#btn-auth-submit span");
   const modeText = root.querySelector<HTMLElement>("#auth-mode-text");
 
-  if (loginForm) loginForm.classList.toggle("is-hidden", !state.isRegisterMode);
+  if (loginForm) loginForm.classList.toggle("is-hidden", !state.isAuthFormVisible);
   if (nameInput) nameInput.classList.toggle("is-hidden", !state.isRegisterMode);
   if (submitBtn)
     submitBtn.textContent = state.isRegisterMode
       ? "CREAR CUENTA"
-      : "ENTRAR CON MI ROSTRO";
+      : state.isAuthFormVisible
+        ? "INICIAR SESIÓN"
+        : "ENTRAR CON MI ROSTRO";
   if (modeText)
     modeText.textContent = state.isRegisterMode
       ? "YA TENGO CUENTA"
@@ -628,6 +633,7 @@ function updateAuthUI(): void {
 
 function toggleAuthMode(): void {
   state.isRegisterMode = !state.isRegisterMode;
+  state.isAuthFormVisible = true;
   updateAuthUI();
 }
 
@@ -800,13 +806,9 @@ async function tryCameraAuth(seconds = 3): Promise<boolean> {
 }
 
 /** Finaliza la sesión después de verificación biométrica exitosa.
- *  Llama al backend con el DNI extraído del campo email. */
+ *  Usa el DNI demo del seed (no requiere intervención del usuario). */
 async function completeBiometricSession(): Promise<void> {
-  const emailInput = root.querySelector<HTMLInputElement>("#login-email");
-  const dniRaw = emailInput?.value.trim() ?? "";
-  const dni = dniRaw.replace(/\D/g, "").slice(0, 8).padStart(8, "0");
-
-  const result = await api.biometricLogin({ dni });
+  const result = await api.biometricLogin({ dni: DEMO_DNI });
 
   state.userId = result.user.id;
   state.userName = result.user.name;
@@ -881,13 +883,9 @@ async function handleBiometricLogin(): Promise<void> {
     "No se detectó biometría. Por favor ingrese su correo y contraseña.",
   );
 
-  // Activa el modo login con formulario visible (ya existe en tu código)
   state.isRegisterMode = false;
+  state.isAuthFormVisible = true;
   updateAuthUI();
-
-  // Fuerza que los inputs sean visibles aunque estuvieran ocultos
-  root.querySelector<HTMLElement>("#login-email")?.removeAttribute("style");
-  root.querySelector<HTMLElement>("#login-password")?.removeAttribute("style");
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -1098,7 +1096,11 @@ root.addEventListener("click", (event) => {
   }
 
   if (action === "login") {
-    handleBiometricLogin();
+    if (state.isRegisterMode || state.isAuthFormVisible) {
+      handleAuth();
+    } else {
+      handleBiometricLogin();
+    }
     return;
   }
 

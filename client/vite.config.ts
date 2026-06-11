@@ -17,10 +17,14 @@ export default defineConfig(({ mode }) => {
         "/auth": {
           target: apiUrl,
           changeOrigin: true,
+          cookieDomainRewrite: "localhost",
+          secure: false,
         },
         "/finances": {
           target: apiUrl,
           changeOrigin: true,
+          cookieDomainRewrite: "localhost",
+          secure: false,
         },
       },
     },
