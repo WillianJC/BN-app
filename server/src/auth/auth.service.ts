@@ -11,9 +11,12 @@ import { Repository } from 'typeorm';
 import type { JwtPayload } from './dto/jwt-payload.interface';
 import type { RegisterDto } from './dto/register.dto';
 import { User } from './entities/user.entity';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new LoggerService('AuthService');
+
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
@@ -80,9 +83,11 @@ export class AuthService {
   }
 
   async biometricLogin(dni: string) {
+    const maskedDni = `***${dni.slice(-4)}`;
     const user = await this.userRepo.findOne({ where: { dni } });
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      this.logger.warn(`biometric_login: failed dni=${maskedDni}`);
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload: JwtPayload = {
@@ -91,6 +96,8 @@ export class AuthService {
       role: user.role,
     };
     const token = this.jwtService.sign(payload);
+
+    this.logger.log(`biometric_login: ok dni=${maskedDni} user=${user.email}`);
 
     return {
       access_token: token,
