@@ -2,6 +2,7 @@ export interface SpeechController {
   speak(text: string): void;
   cancel(): void;
   toggleMute(): boolean;
+  setMuted(muted: boolean): boolean;
   isMuted(): boolean;
   replay(): void;
   setMessage(text: string): void;
@@ -51,6 +52,14 @@ export function createSpeechController(
     return muted;
   };
 
+  const setMuted = (next: boolean): boolean => {
+    if (muted === next) return muted;
+    muted = next;
+    if (muted) cancel();
+    onChange?.(muted);
+    return muted;
+  };
+
   const replay = (): void => {
     if (currentText) speak(currentText);
   };
@@ -59,6 +68,7 @@ export function createSpeechController(
     speak,
     cancel,
     toggleMute,
+    setMuted,
     isMuted: () => muted,
     replay,
     setMessage: (text) => {

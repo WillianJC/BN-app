@@ -349,6 +349,48 @@ button:focus-visible {
   background: rgba(254, 226, 226, 0.95);
 }
 
+.voice-toggle {
+  position: relative;
+  transition: background 160ms ease, color 160ms ease, transform 120ms ease;
+}
+
+.voice-toggle:active {
+  transform: scale(0.96);
+}
+
+.voice-toggle--active {
+  color: #0f766e;
+  background: rgba(236, 253, 245, 0.95);
+}
+
+.voice-toggle--muted {
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.95);
+}
+
+.voice-toggle--muted i {
+  opacity: 0.85;
+}
+
+.voice-toggle__dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.voice-toggle--active .voice-toggle__dot {
+  background: #10b981;
+}
+
+.voice-toggle--muted .voice-toggle__dot {
+  background: #ef4444;
+}
+
 .screen-toolbar h3 {
   font-size: 1rem;
   color: #0f172a;

@@ -25,18 +25,25 @@ export function ScreenHeader({
 }: ScreenHeaderProps) {
   const { user, logout } = useAuth();
   const { profile, muted, toggleMute } = useProfile();
-  const { speak } = useSpeech();
+  const { speak, setMuted: setSpeechMuted, cancel: cancelSpeech } = useSpeech();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
   const handleToggleVoice = () => {
+    const willBeMuted = !muted;
     toggleMute();
+    if (willBeMuted) {
+      cancelSpeech();
+      setSpeechMuted(true);
+    } else {
+      setSpeechMuted(false);
+    }
     showToast(
-      muted ? "Voz Activada" : "Voz Silenciada",
-      muted
-        ? "Se ha vuelto a activar la guía de voz en español."
-        : "Se ha desactivado la ayuda sonora del simulador.",
-      muted ? "success" : "warning",
+      willBeMuted ? "Voz Silenciada" : "Voz Activada",
+      willBeMuted
+        ? "Se ha desactivado la ayuda sonora del simulador."
+        : "Se ha vuelto a activar la guía de voz en español.",
+      willBeMuted ? "warning" : "success",
     );
     onSpeak?.();
   };
@@ -61,11 +68,14 @@ export function ScreenHeader({
         {showVoice && (
           <button
             type="button"
-            className="mini-action app-btn-secondary"
+            className={`mini-action app-btn-secondary voice-toggle ${muted ? "voice-toggle--muted" : "voice-toggle--active"}`}
             onClick={handleToggleVoice}
-            aria-label="Escuchar estado de la cuenta"
+            aria-label={muted ? "Activar guía de voz" : "Silenciar guía de voz"}
+            aria-pressed={muted}
+            title={muted ? "Voz desactivada" : "Voz activada"}
           >
-            <i className="fa-solid fa-volume-high" />
+            <i className={`fa-solid ${muted ? "fa-volume-xmark" : "fa-volume-high"}`} />
+            <span className="voice-toggle__dot" aria-hidden="true" />
           </button>
         )}
         {showLogout && (
