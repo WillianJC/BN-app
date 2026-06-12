@@ -4,7 +4,6 @@ import { useProfile } from "../../shared/context/ProfileContext";
 import { useSpeech } from "../../shared/context/SpeechContext";
 import { useToast } from "../../shared/context/ToastContext";
 import {
-  AppShell,
   ScreenToolbar,
   ScreenScaffold,
 } from "../../shared/components";
@@ -31,48 +30,46 @@ export function HelpPage() {
   };
 
   return (
-    <AppShell>
-      <ScreenScaffold pageSpeech="Le estamos conectando con un asesor humano para guiarle paso a paso.">
-        <ScreenToolbar
-          title={translate(profile, "ayuda-header")}
-          onSpeak={handleSpeak}
-          onBack={() => navigate(APP_ROUTES.home)}
-        />
+    <ScreenScaffold pageSpeech="Le estamos conectando con un asesor humano para guiarle paso a paso.">
+      <ScreenToolbar
+        title={translate(profile, "ayuda-header")}
+        onSpeak={handleSpeak}
+        onBack={() => navigate(APP_ROUTES.home)}
+      />
 
-        <div className="center-stack">
-          <div className="support-avatar app-card">
-            <i className="fa-solid fa-user-tie" />
-          </div>
-          <div>
-            <h4 className="app-text">{translate(profile, "ayuda-sub")}</h4>
-            <p className="app-copy">Conexión de audio y video</p>
-          </div>
-          <div className="notice-card app-card">
-            <i className="fa-solid fa-shield-halved" />
-            <p className="app-copy strong">
-              Puede dar acceso temporal controlado a su hijo o asesor para ayudarle.
-            </p>
-          </div>
+      <div className="center-stack">
+        <div className="support-avatar app-card">
+          <i className="fa-solid fa-user-tie" />
         </div>
+        <div>
+          <h4 className="app-text">{translate(profile, "ayuda-sub")}</h4>
+          <p className="app-copy">Conexión de audio y video</p>
+        </div>
+        <div className="notice-card app-card">
+          <i className="fa-solid fa-shield-halved" />
+          <p className="app-copy strong">
+            Puede dar acceso temporal controlado a su hijo o asesor para ayudarle.
+          </p>
+        </div>
+      </div>
 
-        <div className="help-actions">
-          <button
-            type="button"
-            className="primary-action app-btn-accent"
-            onClick={handleCall}
-          >
-            <i className="fa-solid fa-phone" />
-            <span>LLAMAR DE INMEDIATO</span>
-          </button>
-          <button
-            type="button"
-            className="secondary-action app-btn-secondary"
-            onClick={() => navigate(APP_ROUTES.home)}
-          >
-            CANCELAR
-          </button>
-        </div>
-      </ScreenScaffold>
-    </AppShell>
+      <div className="help-actions">
+        <button
+          type="button"
+          className="primary-action app-btn-accent"
+          onClick={handleCall}
+        >
+          <i className="fa-solid fa-phone" />
+          <span>LLAMAR DE INMEDIATO</span>
+        </button>
+        <button
+          type="button"
+          className="secondary-action app-btn-secondary"
+          onClick={() => navigate(APP_ROUTES.home)}
+        >
+          CANCELAR
+        </button>
+      </div>
+    </ScreenScaffold>
   );
 }

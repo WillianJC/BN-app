@@ -5,7 +5,6 @@ import { useSpeech } from "../../shared/context/SpeechContext";
 import { useToast } from "../../shared/context/ToastContext";
 import { useWallet } from "../finances/context/WalletContext";
 import {
-  AppShell,
   ScreenToolbar,
   ScreenScaffold,
 } from "../../shared/components";
@@ -48,46 +47,44 @@ export function WalletPage() {
   };
 
   return (
-    <AppShell>
-      <ScreenScaffold
-        pageSpeech={`Sección: Mi dinero. Su saldo actual es de ${balanceSpeech}.`}
-      >
-        <ScreenToolbar
-          title={translate(profile, "saldo-header")}
-          onSpeak={handleSpeak}
-          onBack={() => navigate(APP_ROUTES.home)}
-        />
+    <ScreenScaffold
+      pageSpeech={`Sección: Mi dinero. Su saldo actual es de ${balanceSpeech}.`}
+    >
+      <ScreenToolbar
+        title={translate(profile, "saldo-header")}
+        onSpeak={handleSpeak}
+        onBack={() => navigate(APP_ROUTES.home)}
+      />
 
-        <div className="center-stack">
-          <div className="money-icon app-icon">
-            <i className="fa-solid fa-piggy-bank" />
-          </div>
-          <p className="app-copy strong">{translate(profile, "saldo-label")}</p>
-          <div className="balance-big app-text">{formatCurrency(balance)}</div>
-          <p className="app-copy">Pesos / Dólares Equivalentes</p>
-          <div className="notice-card app-card">
-            <i className="fa-solid fa-circle-check" />
-            <p className="app-copy strong">{translate(profile, "saldo-alert")}</p>
-          </div>
-          <button
-            type="button"
-            className="primary-action app-btn-accent"
-            onClick={handleCollectPension}
-          >
-            <i className="fa-solid fa-hand-holding-dollar" />
-            <span>COBRAR PENSIÓN (${PENSION_AMOUNT.toLocaleString()})</span>
-          </button>
+      <div className="center-stack">
+        <div className="money-icon app-icon">
+          <i className="fa-solid fa-piggy-bank" />
         </div>
-
+        <p className="app-copy strong">{translate(profile, "saldo-label")}</p>
+        <div className="balance-big app-text">{formatCurrency(balance)}</div>
+        <p className="app-copy">Pesos / Dólares Equivalentes</p>
+        <div className="notice-card app-card">
+          <i className="fa-solid fa-circle-check" />
+          <p className="app-copy strong">{translate(profile, "saldo-alert")}</p>
+        </div>
         <button
           type="button"
-          className="secondary-action app-btn-secondary"
-          onClick={() => navigate(APP_ROUTES.withdraw)}
+          className="primary-action app-btn-accent"
+          onClick={handleCollectPension}
         >
-          <i className="fa-solid fa-qrcode" />
-          <span>{translate(profile, "saldo-btn")}</span>
+          <i className="fa-solid fa-hand-holding-dollar" />
+          <span>COBRAR PENSIÓN (${PENSION_AMOUNT.toLocaleString()})</span>
         </button>
-      </ScreenScaffold>
-    </AppShell>
+      </div>
+
+      <button
+        type="button"
+        className="secondary-action app-btn-secondary"
+        onClick={() => navigate(APP_ROUTES.withdraw)}
+      >
+        <i className="fa-solid fa-qrcode" />
+        <span>{translate(profile, "saldo-btn")}</span>
+      </button>
+    </ScreenScaffold>
   );
 }

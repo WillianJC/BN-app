@@ -21,7 +21,7 @@
 .high-contrast-mode .mini-action,
 .high-contrast-mode .logout-action,
 .high-contrast-mode .service-item,
-.high-contrast-mode .profile-pill {
+.high-contrast-mode .profile-switcher {
   background: #000000;
   color: #ffff00;
   border-color: #ffff00;
@@ -30,7 +30,9 @@
 .high-contrast-mode .app-copy,
 .high-contrast-mode .eyebrow,
 .high-contrast-mode .balance-label,
-.high-contrast-mode .service-item p {
+.high-contrast-mode .service-item p,
+.high-contrast-mode .profile-setting-copy h2,
+.high-contrast-mode .profile-setting-copy p {
   color: #ffff00;
 }
 
@@ -42,9 +44,14 @@
   border: 2px solid #ffff00;
 }
 
-.high-contrast-mode .profile-pill.is-active {
+.high-contrast-mode .profile-setting-icon,
+.high-contrast-mode .vision-switch-track {
   background: #ffff00;
   color: #000000;
+}
+
+.high-contrast-mode .vision-switch-thumb {
+  background: #000000;
 }
 
 .high-contrast-mode .balance-card,

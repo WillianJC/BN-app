@@ -1,35 +1,41 @@
 import { useProfile } from "../context/ProfileContext";
-import { translate } from "../../utils/i18n";
-
-const PROFILES: { id: "normal" | "vision" | "notext"; icon: string; label: string }[] = [
-  { id: "normal", icon: "fa-font", label: "Estándar" },
-  { id: "vision", icon: "fa-eye", label: "Alta Visión" },
-  { id: "notext", icon: "fa-hand-pointer", label: "Guiado" },
-];
+import type { Profile } from "../../utils/i18n";
 
 interface ProfileSwitcherProps {
-  onChange?: (profile: "normal" | "vision" | "notext") => void;
+  onChange?: (profile: Profile) => void;
 }
 
 export function ProfileSwitcher({ onChange }: ProfileSwitcherProps) {
   const { profile, setProfile } = useProfile();
+  const isHighVision = profile === "vision";
+
+  const handleToggleVision = () => {
+    const nextProfile: Profile = isHighVision ? "normal" : "vision";
+    setProfile(nextProfile);
+    onChange?.(nextProfile);
+  };
 
   return (
-    <div className="profile-switcher" role="group" aria-label="Perfiles de accesibilidad">
-      {PROFILES.map((p) => (
-        <button
-          key={p.id}
-          type="button"
-          className={`profile-pill ${p.id === profile ? "is-active" : ""}`}
-          data-profile={p.id}
-          onClick={() => {
-            setProfile(p.id);
-            onChange?.(p.id);
-          }}
-        >
-          <i className={`fa-solid ${p.icon}`} aria-hidden="true" /> {translate(profile, "auth-voice-help").includes("VOZ") ? p.label : p.label}
-        </button>
-      ))}
-    </div>
+    <section className="profile-switcher app-card" aria-label="Configuración de accesibilidad">
+      <div className="profile-setting-icon" aria-hidden="true">
+        <i className="fa-solid fa-gear" />
+      </div>
+      <div className="profile-setting-copy">
+        <h2>Modo Alta Visión</h2>
+        <p>Alto contraste negro/amarillo y letras grandes.</p>
+      </div>
+      <button
+        type="button"
+        className={`vision-switch ${isHighVision ? "is-on" : ""}`}
+        role="switch"
+        aria-checked={isHighVision}
+        aria-label={`${isHighVision ? "Apagar" : "Encender"} Modo Alta Visión`}
+        onClick={handleToggleVision}
+      >
+        <span className="vision-switch-track">
+          <span className="vision-switch-thumb" />
+        </span>
+      </button>
+    </section>
   );
 }

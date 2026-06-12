@@ -5,7 +5,6 @@ import { useSpeech } from "../../shared/context/SpeechContext";
 import { useToast } from "../../shared/context/ToastContext";
 import { useWallet } from "../finances/context/WalletContext";
 import {
-  AppShell,
   ScreenToolbar,
   ScreenScaffold,
 } from "../../shared/components";
@@ -79,53 +78,51 @@ export function PaymentsPage() {
   };
 
   return (
-    <AppShell>
-      <ScreenScaffold pageSpeech="Sección para pagar recibos de luz o agua de manera segura.">
-        <ScreenToolbar
-          title={translate(profile, "pagos-header")}
-          onSpeak={handleSpeak}
-          onBack={() => navigate(APP_ROUTES.home)}
-        />
+    <ScreenScaffold pageSpeech="Sección para pagar recibos de luz o agua de manera segura.">
+      <ScreenToolbar
+        title={translate(profile, "pagos-header")}
+        onSpeak={handleSpeak}
+        onBack={() => navigate(APP_ROUTES.home)}
+      />
 
-        <div className="center-stack center-stack--tight">
-          <p className="app-copy strong">{translate(profile, "pagos-sub")}</p>
+      <div className="center-stack center-stack--tight">
+        <p className="app-copy strong">{translate(profile, "pagos-sub")}</p>
 
-          {SERVICES.map((service) => (
-            <button
-              key={service.id}
-              type="button"
-              className="service-item app-card"
-              onClick={() =>
-                handlePay(
-                  service.id === "LUZ" ? "Luz" : "Agua",
-                  service.amount,
-                  service.utilityType,
-                )
-              }
-            >
-              <div className="service-info">
-                <div className={`service-icon ${service.iconClass}`}>
-                  <i className={`fa-solid ${service.icon}`} />
-                </div>
-                <div>
-                  <h4>{translate(profile, service.labelKey)}</h4>
-                  <p>Vence en {service.id === "LUZ" ? 3 : 5} días</p>
-                </div>
-              </div>
-              <strong>{formatCurrency(service.amount)}</strong>
-            </button>
-          ))}
-
+        {SERVICES.map((service) => (
           <button
+            key={service.id}
             type="button"
-            className="secondary-action app-btn-secondary"
-            onClick={handleScan}
+            className="service-item app-card"
+            onClick={() =>
+              handlePay(
+                service.id === "LUZ" ? "Luz" : "Agua",
+                service.amount,
+                service.utilityType,
+              )
+            }
           >
-            <i className="fa-solid fa-camera" />
-            <span>{translate(profile, "pagos-camera")}</span>
+            <div className="service-info">
+              <div className={`service-icon ${service.iconClass}`}>
+                <i className={`fa-solid ${service.icon}`} />
+              </div>
+              <div>
+                <h4>{translate(profile, service.labelKey)}</h4>
+                <p>Vence en {service.id === "LUZ" ? 3 : 5} días</p>
+              </div>
+            </div>
+            <strong>{formatCurrency(service.amount)}</strong>
           </button>
-        </div>
-      </ScreenScaffold>
-    </AppShell>
+        ))}
+
+        <button
+          type="button"
+          className="secondary-action app-btn-secondary"
+          onClick={handleScan}
+        >
+          <i className="fa-solid fa-camera" />
+          <span>{translate(profile, "pagos-camera")}</span>
+        </button>
+      </div>
+    </ScreenScaffold>
   );
 }

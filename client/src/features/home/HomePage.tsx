@@ -4,7 +4,6 @@ import { useProfile } from "../../shared/context/ProfileContext";
 import { useSpeech } from "../../shared/context/SpeechContext";
 import { useWallet } from "../finances/context/WalletContext";
 import {
-  AppShell,
   ScreenHeader,
   ScreenScaffold,
   ActionCard,
@@ -73,44 +72,42 @@ export function HomePage() {
   const balanceSpeech = formatBalanceSpeech(balance);
 
   return (
-    <AppShell>
-      <ScreenScaffold
-        pageSpeech={`Sección principal. Su saldo es de ${balanceSpeech}. Puede cobrar bonos, pagar cuentas o pedir ayuda.`}
-      >
-        <ScreenHeader showVoice onSpeak={handleSpeak} />
+    <ScreenScaffold
+      pageSpeech={`Sección principal. Su saldo es de ${balanceSpeech}. Puede cobrar bonos, pagar cuentas o pedir ayuda.`}
+    >
+      <ScreenHeader showVoice onSpeak={handleSpeak} />
 
-        <div className="balance-card app-card">
-          <div>
-            <p className="balance-label">{translate(profile, "home-balance-label")}</p>
-            <div className="balance-amount">
-              {formatCurrency(balance)} <span>USD</span>
-            </div>
-            <p className="balance-subtitle">Pensión de Jubilación al día</p>
+      <div className="balance-card app-card">
+        <div>
+          <p className="balance-label">{translate(profile, "home-balance-label")}</p>
+          <div className="balance-amount">
+            {formatCurrency(balance)} <span>USD</span>
           </div>
-          <div className="balance-orb" aria-hidden="true" />
+          <p className="balance-subtitle">Pensión de Jubilación al día</p>
         </div>
+        <div className="balance-orb" aria-hidden="true" />
+      </div>
 
-        <div className="action-grid">
-          {ACTION_CARDS.map((card) => (
-            <ActionCard
-              key={card.to}
-              to={card.to}
-              icon={card.icon}
-              iconClassName={card.iconClass}
-              label={translate(profile, card.labelKey)}
-            />
-          ))}
-        </div>
+      <div className="action-grid">
+        {ACTION_CARDS.map((card) => (
+          <ActionCard
+            key={card.to}
+            to={card.to}
+            icon={card.icon}
+            iconClassName={card.iconClass}
+            label={translate(profile, card.labelKey)}
+          />
+        ))}
+      </div>
 
-        <button
-          type="button"
-          className="sos-button app-btn-accent"
-          onClick={handleSos}
-        >
-          <i className="fa-solid fa-phone-volume" />
-          <span>{translate(profile, "home-sos-btn")}</span>
-        </button>
-      </ScreenScaffold>
-    </AppShell>
+      <button
+        type="button"
+        className="sos-button app-btn-accent"
+        onClick={handleSos}
+      >
+        <i className="fa-solid fa-phone-volume" />
+        <span>{translate(profile, "home-sos-btn")}</span>
+      </button>
+    </ScreenScaffold>
   );
 }

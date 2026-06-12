@@ -5,7 +5,6 @@ import { useSpeech } from "../../shared/context/SpeechContext";
 import { useToast } from "../../shared/context/ToastContext";
 import { useWallet } from "../finances/context/WalletContext";
 import {
-  AppShell,
   ScreenToolbar,
   ScreenScaffold,
 } from "../../shared/components";
@@ -47,54 +46,52 @@ export function WithdrawPage() {
   };
 
   return (
-    <AppShell>
-      <ScreenScaffold pageSpeech="Sección de cobro de dinero. Muestre el dibujo en la pantalla de su celular al cajero para retirar sus billetes.">
-        <ScreenToolbar
-          title={translate(profile, "cobro-header")}
-          onSpeak={handleSpeak}
-          onBack={() => navigate(APP_ROUTES.home)}
-        />
+    <ScreenScaffold pageSpeech="Sección de cobro de dinero. Muestre el dibujo en la pantalla de su celular al cajero para retirar sus billetes.">
+      <ScreenToolbar
+        title={translate(profile, "cobro-header")}
+        onSpeak={handleSpeak}
+        onBack={() => navigate(APP_ROUTES.home)}
+      />
 
-        <div className="center-stack center-stack--tight">
-          <p className="step-badge app-text">{translate(profile, "cobro-step-1")}</p>
-          <div className="qr-card app-card">
-            <div className="qr-grid" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span className="dark" />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span className="dark" />
-              <span />
-              <span className="dark" />
-              <span />
-              <span />
-            </div>
+      <div className="center-stack center-stack--tight">
+        <p className="step-badge app-text">{translate(profile, "cobro-step-1")}</p>
+        <div className="qr-card app-card">
+          <div className="qr-grid" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span className="dark" />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span className="dark" />
+            <span />
+            <span className="dark" />
+            <span />
+            <span />
           </div>
-          <p className="app-copy strong">{translate(profile, "cobro-step-2")}</p>
-          <div className="code-pill app-card">{WITHDRAW_CODE}</div>
-          <div className="notice-card notice-card--success app-card">
-            <i className="fa-solid fa-circle-info" />
-            <p className="app-copy strong">
-              Lleve el código al cajero o tienda autorizada.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="primary-action app-btn-accent"
-            onClick={handleCollectBonus}
-          >
-            <i className="fa-solid fa-gift" />
-            <span>COBRAR BONO (${BONUS_AMOUNT.toLocaleString()})</span>
-          </button>
         </div>
-      </ScreenScaffold>
-    </AppShell>
+        <p className="app-copy strong">{translate(profile, "cobro-step-2")}</p>
+        <div className="code-pill app-card">{WITHDRAW_CODE}</div>
+        <div className="notice-card notice-card--success app-card">
+          <i className="fa-solid fa-circle-info" />
+          <p className="app-copy strong">
+            Lleve el código al cajero o tienda autorizada.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="primary-action app-btn-accent"
+          onClick={handleCollectBonus}
+        >
+          <i className="fa-solid fa-gift" />
+          <span>COBRAR BONO (${BONUS_AMOUNT.toLocaleString()})</span>
+        </button>
+      </div>
+    </ScreenScaffold>
   );
 }
