@@ -61,7 +61,7 @@ export function usePasskey() {
     }
     const authenticationResponse = await startAuthentication({
       optionsJSON: options as unknown as Parameters<typeof startAuthentication>[0]["optionsJSON"],
-      useBrowserAutofill: true,
+      useBrowserAutofill: false,
     });
     const result = await passkeyApi.verifyLogin(authenticationResponse);
     return result.user;
