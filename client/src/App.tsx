@@ -9,6 +9,7 @@ import {
 } from "./shared/context";
 import { WalletProvider } from "./features/finances/context/WalletContext";
 import { ErrorBoundary } from "./pages";
+import { InstallPrompt } from "./features/pwa/InstallPrompt";
 import type { ReactNode } from "react";
 
 function MuteAwareSpeechProvider({ children }: { children: ReactNode }) {
@@ -22,7 +23,10 @@ function Providers({ children }: { children: ReactNode }) {
       <AuthProvider>
         <WalletProvider>
           <ToastProvider>
-            <MuteAwareSpeechProvider>{children}</MuteAwareSpeechProvider>
+            <MuteAwareSpeechProvider>
+              {children}
+              <InstallPrompt />
+            </MuteAwareSpeechProvider>
           </ToastProvider>
         </WalletProvider>
       </AuthProvider>
