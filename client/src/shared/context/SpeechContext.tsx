@@ -37,6 +37,7 @@ export function SpeechProvider({ children, isMuted }: SpeechProviderProps) {
   }
 
   useEffect(() => {
+    controllerRef.current?.setMuted(isMuted);
     if (isMuted) {
       controllerRef.current?.cancel();
     }
